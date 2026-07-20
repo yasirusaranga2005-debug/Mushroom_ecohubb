@@ -35,8 +35,7 @@ import {
   Droplets,
   CloudLightning,
   Sun,
-  Sprout,
-  Globe
+  Sprout
 } from 'lucide-react';
 import {
   UserProfile,
