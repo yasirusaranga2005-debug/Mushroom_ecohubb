@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sprout, Menu, X, LayoutDashboard, LogOut, Globe, User, Bell, Check, Shield } from 'lucide-react';
+import { Sprout, Menu, X, LayoutDashboard, LogOut, Globe, User, Bell, Check, Shield, Clock, CheckCircle2 } from 'lucide-react';
 import { UserProfile, AppNotification } from '../types';
 import Logo from './Logo';
 
