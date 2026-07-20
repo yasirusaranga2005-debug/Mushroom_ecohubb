@@ -23,6 +23,7 @@ import {
   Wrench,
   Clock,
   AlertTriangle,
+  AlertCircle,
   Globe,
   MapPin,
   Award,
@@ -59,6 +60,24 @@ interface DashboardProps {
   language: 'EN' | 'SI';
   currentUser: UserProfile;
   onUpdateProfile: (profile: UserProfile) => void;
+}
+
+function LiveClock({ language }: { language: 'EN' | 'SI' }) {
+  const [time, setTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+  
+  const formattedDate = time.toLocaleDateString(language === 'EN' ? 'en-US' : 'si-LK', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const formattedTime = time.toLocaleTimeString(language === 'EN' ? 'en-US' : 'si-LK', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+  return (
+    <div className="flex flex-col">
+      <span className="text-lg font-bold text-stone-800 tracking-tight">{formattedTime}</span>
+      <span className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">{formattedDate}</span>
+    </div>
+  );
 }
 
 export default function Dashboard({
@@ -1124,58 +1143,190 @@ export default function Dashboard({
 
                   {/* Stats Row */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm">
-                      <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
-                        {language === 'EN' ? 'Ecosystem Members' : 'සාමාජිකයින්'}
-                      </span>
-                      <span className="text-2xl font-extrabold text-stone-800">{approvedMembers}</span>
-                      <span className="block text-[10px] text-amber-600 font-semibold mt-1">
-                        +{pendingMembers} pending review
-                      </span>
+                  {/* Live Clock & Role Stats Section */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-[24px] border border-stone-200 shadow-sm gap-4">
+                      <div>
+                        <h3 className="font-serif font-bold text-stone-800 flex items-center gap-2">
+                          <Activity className="h-4.5 w-4.5 text-brand-orange" />
+                          {language === 'EN' ? 'Real-time Metrics' : 'තථ්‍ය කාලීන දත්ත'}
+                        </h3>
+                        <p className="text-[11px] text-stone-500 font-sans mt-0.5">
+                          {language === 'EN' ? 'Live updates from your ecosystem' : 'ඔබගේ පද්ධතියෙන් සජීවී යාවත්කාලීන'}
+                        </p>
+                      </div>
+                      <div className="bg-stone-50 px-4 py-2 rounded-xl border border-stone-100 flex items-center gap-3 shadow-inner">
+                        <Clock className="h-5 w-5 text-stone-400" />
+                        <LiveClock language={language} />
+                      </div>
                     </div>
 
-                    <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm">
-                      <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
-                        {language === 'EN' ? 'Listed Products' : 'නිෂ්පාදන ගණන'}
-                      </span>
-                      <span className="text-2xl font-extrabold text-stone-800">{products.length}</span>
-                      <span className="block text-[10px] text-stone-500 mt-1">Across Sri Lanka</span>
-                    </div>
-
-                    <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm">
-                      <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
-                        {language === 'EN' ? 'Supermarket Orders' : 'මිල විමසීම්'}
-                      </span>
-                      <span className="text-2xl font-extrabold text-stone-800">{totalInquiries}</span>
-                      <span className="block text-[10px] text-emerald-600 font-bold mt-1">
-                        {newInquiries} unread new
-                      </span>
-                    </div>
-
-                    <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm">
-                      <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
-                        {language === 'EN' ? 'Business Notices' : 'සක්‍රීය අවස්ථා'}
-                      </span>
-                      <span className="text-2xl font-extrabold text-stone-800">
-                        {opportunities.filter(o => o.status === 'Active').length}
-                      </span>
-                      <span className="block text-[10px] text-emerald-600 font-semibold mt-1">Opportunity board</span>
+                    {/* Role-Specific Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {currentUser.role === 'admin' || currentUser.role === 'staff' ? (
+                        <>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Total Members' : 'සාමාජිකයින්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{approvedMembers}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${Math.min((approvedMembers / 50) * 100, 100)}%` }}></div>
+                            </div>
+                            <span className="block text-[10px] text-amber-600 font-semibold mt-2 flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" /> +{pendingMembers} pending review
+                            </span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Market Products' : 'නිෂ්පාදන'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{products.length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min((products.length / 100) * 100, 100)}%` }}></div>
+                            </div>
+                            <span className="block text-[10px] text-stone-500 mt-2 font-medium">Active listings</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Total Inquiries' : 'විමසීම්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{totalInquiries}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-cyan-500 h-1.5 rounded-full" style={{ width: `${Math.min((totalInquiries / 20) * 100, 100)}%` }}></div>
+                            </div>
+                            <span className="block text-[10px] text-cyan-600 font-bold mt-2">{newInquiries} unread new</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'System Load' : 'පද්ධති භාරය'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">14%</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '14%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-emerald-600 font-semibold mt-2 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" /> Optimal Status
+                            </span>
+                          </div>
+                        </>
+                      ) : currentUser.role === 'grower' ? (
+                        <>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'My Products' : 'මගේ නිෂ්පාදන'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{products.filter(p => p.growerId === currentUser.id).length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min((products.filter(p => p.growerId === currentUser.id).length / 10) * 100, 100)}%` }}></div>
+                            </div>
+                            <span className="block text-[10px] text-stone-500 mt-2 font-medium">Listed in marketplace</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Pending Orders' : 'ඇණවුම්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${Math.min((inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length / 5) * 100, 100)}%` }}></div>
+                            </div>
+                            <span className="block text-[10px] text-amber-600 font-semibold mt-2">Requires action</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Completed Orders' : 'සම්පූර්ණ ඇණවුම්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => (i.status === 'Closed' || i.status === 'Converted') && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '100%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-blue-600 font-semibold mt-2">Historical data</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Yield Efficiency' : 'අස්වනු කාර්යක්ෂමතාව'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">85%</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-emerald-600 font-semibold mt-2 flex items-center gap-1">
+                              <CheckCircle2 className="h-3 w-3" /> Above average
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Generic for buyer/trainer/partner for now, can be expanded further */}
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Total Marketplace Items' : 'වෙළඳපොළේ අයිතම'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{products.length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-stone-500 mt-2 font-medium">Available across island</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Active Suppliers' : 'සැපයුම්කරුවන්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{approvedMembers}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '80%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-stone-500 mt-2 font-medium">Verified members</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'Active Opportunities' : 'සක්‍රීය අවස්ථා'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">{opportunities.filter(o => o.status === 'Active').length}</span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: '40%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-amber-600 font-semibold mt-2">B2B & Partnerships</span>
+                          </div>
+                          <div className="bg-white border border-stone-200 p-5 rounded-2xl shadow-sm hover:shadow-md transition">
+                            <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
+                              {language === 'EN' ? 'My Activity' : 'මගේ ක්‍රියාකාරකම්'}
+                            </span>
+                            <span className="text-2xl font-extrabold text-stone-800">
+                              {currentUser.role === 'buyer' ? inquiries.filter(i => i.buyerId === currentUser.id).length : 
+                               currentUser.role === 'trainer' ? trainingPrograms.filter(t => t.trainerId === currentUser.id).length : 
+                               machineryInquiries.filter(m => m.buyerId === currentUser.id).length}
+                            </span>
+                            <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '30%' }}></div>
+                            </div>
+                            <span className="block text-[10px] text-stone-500 mt-2 font-medium">Recent interactions</span>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  {/* Role Specific Alerts / Summaries */}
-                  {/* Role Specific Alerts / Summaries */}
-                  <div className="bg-[#F5F5F0] border border-[#5A5A40]/15 p-6 rounded-[24px] space-y-4 shadow-sm">
-                    <h4 className="font-serif font-bold text-[#8B4513] text-sm flex items-center space-x-2">
-                      <Bell className="h-4.5 w-4.5 text-[#8B4513]" />
-                      <span>{language === 'EN' ? 'Recent Notices' : 'මෑතකාලීන දැන්වීම්'}</span>
-                    </h4>
-                    <ul className="space-y-3 text-xs text-[#2D2D2A]">
-                      <li className="bg-white border border-[#5A5A40]/10 p-3 rounded-xl">
-                        <strong className="text-[#8B4513] font-serif">Shared Bulk Purchase Consolidation Policy:</strong> We group small growers' monthly output volumes together to win major retail chain contracts. If you are a grower, please list all products on the public marketplace.
-                      </li>
-                    </ul>
-                  </div>
+                  {/* Notices and Board Sections */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* Role Specific Alerts / Summaries */}
+                    <div className="bg-[#F5F5F0] border border-[#5A5A40]/15 p-6 rounded-[24px] shadow-sm flex flex-col justify-center relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Bell className="h-24 w-24 text-[#8B4513]" />
+                      </div>
+                      <div className="relative z-10">
+                        <h4 className="font-serif font-bold text-[#8B4513] text-sm flex items-center space-x-2 mb-4">
+                          <Bell className="h-4.5 w-4.5 text-[#8B4513]" />
+                          <span>{language === 'EN' ? 'Co-operative Notice Board' : 'සමුපකාර දැන්වීම් පුවරුව'}</span>
+                        </h4>
+                        <ul className="space-y-3 text-xs text-[#2D2D2A]">
+                          <li className="bg-white/80 backdrop-blur-sm border border-[#5A5A40]/10 p-3.5 rounded-xl shadow-sm">
+                            <strong className="text-[#8B4513] font-serif block mb-1">Shared Bulk Purchase Consolidation Policy:</strong> 
+                            We group small growers' monthly output volumes together to win major retail chain contracts. If you are a grower, please list all products on the public marketplace regularly to participate.
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
 
                   {/* Live Weather & Humidity Advisory Widget */}
                   <div className="bg-white border border-stone-200 p-6 rounded-[24px] shadow-sm space-y-4">
