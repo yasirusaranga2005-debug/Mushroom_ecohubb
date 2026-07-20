@@ -14,6 +14,7 @@ import RecipeHub from './components/RecipeHub';
 import Chatbot from './components/Chatbot';
 import { UserProfile, UserRole, AppNotification, SecurityAuditLog } from './types';
 import { dataService } from './lib/dataService';
+import { sendWelcomeEmail } from './lib/emailService';
 import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification } from 'firebase/auth';
 import { auth, isFirebaseAvailable, disableFirebase } from './lib/firebase';
 import { LogIn, UserPlus, AlertCircle, RefreshCw, ShieldCheck, Lock, Key } from 'lucide-react';
