@@ -1214,9 +1214,9 @@ export default function Dashboard({
                             <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
                               {language === 'EN' ? 'My Products' : 'මගේ නිෂ්පාදන'}
                             </span>
-                            <span className="text-2xl font-extrabold text-stone-800">{products.filter(p => p.growerId === currentUser.id).length}</span>
+                            <span className="text-2xl font-extrabold text-stone-800">{products.filter(p => p.growerId === currentUser.uid).length}</span>
                             <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min((products.filter(p => p.growerId === currentUser.id).length / 10) * 100, 100)}%` }}></div>
+                              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${Math.min((products.filter(p => p.growerId === currentUser.uid).length / 10) * 100, 100)}%` }}></div>
                             </div>
                             <span className="block text-[10px] text-stone-500 mt-2 font-medium">Listed in marketplace</span>
                           </div>
@@ -1224,9 +1224,9 @@ export default function Dashboard({
                             <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
                               {language === 'EN' ? 'Pending Orders' : 'ඇණවුම්'}
                             </span>
-                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length}</span>
+                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.uid).length}</span>
                             <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
-                              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${Math.min((inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length / 5) * 100, 100)}%` }}></div>
+                              <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: `${Math.min((inquiries.filter(i => i.status === 'New' && products.find(p => p.id === i.productId)?.growerId === currentUser.uid).length / 5) * 100, 100)}%` }}></div>
                             </div>
                             <span className="block text-[10px] text-amber-600 font-semibold mt-2">Requires action</span>
                           </div>
@@ -1234,7 +1234,7 @@ export default function Dashboard({
                             <span className="block text-stone-400 font-extrabold uppercase text-[10px] tracking-wide mb-1">
                               {language === 'EN' ? 'Completed Orders' : 'සම්පූර්ණ ඇණවුම්'}
                             </span>
-                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => (i.status === 'Closed' || i.status === 'Converted') && products.find(p => p.id === i.productId)?.growerId === currentUser.id).length}</span>
+                            <span className="text-2xl font-extrabold text-stone-800">{inquiries.filter(i => (i.status === 'Closed' || i.status === 'Converted') && products.find(p => p.id === i.productId)?.growerId === currentUser.uid).length}</span>
                             <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
                               <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '100%' }}></div>
                             </div>
@@ -1291,9 +1291,9 @@ export default function Dashboard({
                               {language === 'EN' ? 'My Activity' : 'මගේ ක්‍රියාකාරකම්'}
                             </span>
                             <span className="text-2xl font-extrabold text-stone-800">
-                              {currentUser.role === 'buyer' ? inquiries.filter(i => i.buyerId === currentUser.id).length : 
-                               currentUser.role === 'trainer' ? trainingPrograms.filter(t => t.trainerId === currentUser.id).length : 
-                               machineryInquiries.filter(m => m.buyerId === currentUser.id).length}
+                              {currentUser.role === 'buyer' ? inquiries.filter(i => i.buyerId === currentUser.uid).length : 
+                               currentUser.role === 'trainer' ? trainingPrograms.filter(t => t.trainerId === currentUser.uid).length : 
+                               machineryInquiries.filter(m => m.buyerId === currentUser.uid).length}
                             </span>
                             <div className="mt-3 w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
                               <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '30%' }}></div>
@@ -1401,6 +1401,7 @@ export default function Dashboard({
                           : 'පවතින ආර්ද්‍රතාවය පිපිණි හතු වගාවේ බීජ වර්ධනයට ඉතා හිතකරය. දිනකට 2 වතාවක් ජලය ඉසින්න. වාතාශ්‍රය හොඳින් පවත්වාගන්න. උෂ්ණත්වය සෙල්සියස් 30ට වඩා අඩුවෙන් තබන්න.'}
                       </p>
                     </div>
+                  </div>
                   </div>
 
                   {/* Database Management Controls - Real World Purge & Seed */}
