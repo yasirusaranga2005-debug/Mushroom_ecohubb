@@ -1404,6 +1404,7 @@ export default function Dashboard({
                       </p>
                     </div>
                   </div>
+                  </div>
 
                   {/* Database Management Controls - Real World Purge & Seed */}
                   {currentUser.role === 'admin' && (
