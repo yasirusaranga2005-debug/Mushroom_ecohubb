@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Remix: Mushroom Eco Hub",
+  "description": "A digital ecosystem platform for mushroom farming, products, training, buyers, suppliers, and ecosystem partners.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile with role and details",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "fullName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "district": { "type": "string" },
+        "city": { "type": "string" },
+        "role": { "type": "string" },
+        "experienceLevel": { "type": "string" },
+        "interestedArea": { "type": "string" },
+        "monthlyCapacity": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "fullName", "email", "role"]
+    },
+    "EcosystemMember": {
+      "title": "EcosystemMember",
+      "description": "Ecosystem registration submissions",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "district": { "type": "string" },
+        "city": { "type": "string" },
+        "role": { "type": "string" },
+        "experienceLevel": { "type": "string" },
+        "interestedArea": { "type": "string" },
+        "monthlyCapacity": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["fullName", "phone", "email", "district", "role"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Products listed in the marketplace",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "district": { "type": "string" },
+        "supplierName": { "type": "string" },
+        "supplierId": { "type": "string" },
+        "minimumOrder": { "type": "string" },
+        "monthlyCapacity": { "type": "string" },
+        "priceRange": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "category", "description", "district", "supplierName", "supplierId"]
+    },
+    "BuyerInquiry": {
+      "title": "BuyerInquiry",
+      "description": "Buyer product inquiries",
+      "type": "object",
+      "properties": {
+        "buyerName": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "requiredQuantity": { "type": "string" },
+        "deliveryLocation": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["buyerName", "phone", "email", "productId", "productName", "requiredQuantity"]
+    },
+    "TrainingProgram": {
+      "title": "TrainingProgram",
+      "description": "Available training courses and programs",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "whoItIsFor": { "type": "string" },
+        "duration": { "type": "string" },
+        "format": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "whoItIsFor", "duration", "format"]
+    },
+    "TrainingRequest": {
+      "title": "TrainingRequest",
+      "description": "Training requests from members",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "district": { "type": "string" },
+        "trainingInterest": { "type": "string" },
+        "preferredFormat": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "phone", "district", "trainingInterest", "preferredFormat"]
+    },
+    "Opportunity": {
+      "title": "Opportunity",
+      "description": "Business or farming opportunities on the board",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "district": { "type": "string" },
+        "status": { "type": "string" },
+        "details": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["title", "type", "district", "status", "details"]
+    },
+    "OpportunityApplication": {
+      "title": "OpportunityApplication",
+      "description": "Applications submitted for opportunities",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string" },
+        "message": { "type": "string" },
+        "opportunityId": { "type": "string" },
+        "opportunityTitle": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "phone", "role", "opportunityId", "opportunityTitle"]
+    },
+    "ContactMessage": {
+      "title": "ContactMessage",
+      "description": "Contact messages from the Contact Us page",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "phone", "email", "message"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "System announcements",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "type": { "type": "string" },
+        "date": { "type": "string" }
+      },
+      "required": ["title", "content", "type", "date"]
+    },
+    "MachineryInquiry": {
+      "title": "MachineryInquiry",
+      "description": "Commercial machinery requests",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "machineName": { "type": "string" },
+        "category": { "type": "string" },
+        "intendedProduct": { "type": "string" },
+        "dailyCapacity": { "type": "string" },
+        "location": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "phone", "email", "machineName", "category", "intendedProduct", "dailyCapacity", "location"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "Profiles of system users"
+    },
+    "ecosystem_members": {
+      "schema": "EcosystemMember",
+      "description": "Ecosystem membership applications and listings"
+    },
+    "products": {
+      "schema": "Product",
+      "description": "Products listed in marketplace"
+    },
+    "buyer_inquiries": {
+      "schema": "BuyerInquiry",
+      "description": "Product inquiries submitted by buyers"
+    },
+    "training_programs": {
+      "schema": "TrainingProgram",
+      "description": "Available training packages"
+    },
+    "training_requests": {
+      "schema": "TrainingRequest",
+      "description": "Submitted training requests"
+    },
+    "opportunities": {
+      "schema": "Opportunity",
+      "description": "Business board opportunities"
+    },
+    "opportunity_applications": {
+      "schema": "OpportunityApplication",
+      "description": "Submitted applications for opportunities"
+    },
+    "contact_messages": {
+      "schema": "ContactMessage",
+      "description": "Inquiries from the Contact page"
+    },
+    "announcements": {
+      "schema": "Announcement",
+      "description": "Global notices"
+    },
+    "machinery_inquiries": {
+      "schema": "MachineryInquiry",
+      "description": "Machinery processing line consultation inquiries"
+    }
+  }
+}

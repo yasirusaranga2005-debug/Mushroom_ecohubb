@@ -1,0 +1,280 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 1. Catch-all safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL PRIMITIVES & HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Role-lookup safely from the user profile document in /users/{userId}
+    function hasRole(role) {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        hasRole('admin') || 
+        request.auth.token.email == 'mushroomecohub@gmail.com' || 
+        request.auth.token.email == 'admin@mushroomecohub.com'
+      );
+    }
+
+    function isStaff() {
+      return isSignedIn() && (
+        hasRole('staff') || 
+        isAdmin()
+      );
+    }
+
+    function isGrower() {
+      return isSignedIn() && (
+        hasRole('grower') || 
+        isAdmin()
+      );
+    }
+
+    function isTrainer() {
+      return isSignedIn() && (
+        hasRole('trainer') || 
+        isAdmin()
+      );
+    }
+
+    function isPartner() {
+      return isSignedIn() && (
+        hasRole('partner') || 
+        isAdmin()
+      );
+    }
+
+    function isBuyer() {
+      return isSignedIn() && (
+        hasRole('buyer') || 
+        isAdmin()
+      );
+    }
+
+    // --- VALIDATION BLUEPRINTS (ANTI-UPDATE-GAP) ---
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'fullName', 'email', 'role']) &&
+             data.uid is string && data.uid.size() <= 128 &&
+             data.fullName is string && data.fullName.size() <= 200 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.role is string && (
+               data.role == 'admin' || 
+               data.role == 'grower' || 
+               data.role == 'buyer' || 
+               data.role == 'trainer' || 
+               data.role == 'partner' || 
+               data.role == 'staff'
+             );
+    }
+
+    function isValidEcosystemMember(data) {
+      return data.keys().hasAll(['fullName', 'phone', 'email', 'district', 'role']) &&
+             data.fullName is string && data.fullName.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.district is string && data.district.size() <= 100 &&
+             data.role is string && (
+               data.role == 'admin' || 
+               data.role == 'grower' || 
+               data.role == 'buyer' || 
+               data.role == 'trainer' || 
+               data.role == 'partner' || 
+               data.role == 'staff'
+             );
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['name', 'category', 'description', 'district', 'supplierName', 'supplierId']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.description is string && data.description.size() <= 2000 &&
+             data.district is string && data.district.size() <= 100 &&
+             data.supplierName is string && data.supplierName.size() <= 200 &&
+             data.supplierId is string && data.supplierId.size() <= 128;
+    }
+
+    function isValidBuyerInquiry(data) {
+      return data.keys().hasAll(['buyerName', 'phone', 'email', 'productId', 'productName', 'requiredQuantity']) &&
+             data.buyerName is string && data.buyerName.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.productId is string && data.productId.size() <= 128 &&
+             data.productName is string && data.productName.size() <= 200 &&
+             data.requiredQuantity is string && data.requiredQuantity.size() <= 100;
+    }
+
+    function isValidTrainingProgram(data) {
+      return data.keys().hasAll(['title', 'whoItIsFor', 'duration', 'format']) &&
+             data.title is string && data.title.size() <= 250 &&
+             data.whoItIsFor is string && data.whoItIsFor.size() <= 250 &&
+             data.duration is string && data.duration.size() <= 100 &&
+             data.format is string && data.format.size() <= 100;
+    }
+
+    function isValidTrainingRequest(data) {
+      return data.keys().hasAll(['name', 'phone', 'district', 'trainingInterest', 'preferredFormat']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.district is string && data.district.size() <= 100 &&
+             data.trainingInterest is string && data.trainingInterest.size() <= 200 &&
+             data.preferredFormat is string && data.preferredFormat.size() <= 100;
+    }
+
+    function isValidOpportunity(data) {
+      return data.keys().hasAll(['title', 'type', 'district', 'status', 'details']) &&
+             data.title is string && data.title.size() <= 250 &&
+             data.type is string && data.type.size() <= 100 &&
+             data.district is string && data.district.size() <= 100 &&
+             data.status is string && (data.status == 'Active' || data.status == 'Closed') &&
+             data.details is string && data.details.size() <= 3000;
+    }
+
+    function isValidOpportunityApplication(data) {
+      return data.keys().hasAll(['name', 'phone', 'role', 'opportunityId', 'opportunityTitle']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.role is string && data.role.size() <= 100 &&
+             data.opportunityId is string && data.opportunityId.size() <= 128 &&
+             data.opportunityTitle is string && data.opportunityTitle.size() <= 250;
+    }
+
+    function isValidContactMessage(data) {
+      return data.keys().hasAll(['name', 'phone', 'email', 'message']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.message is string && data.message.size() <= 3000;
+    }
+
+    function isValidMachineryInquiry(data) {
+      return data.keys().hasAll(['name', 'phone', 'email', 'machineName', 'category', 'intendedProduct', 'dailyCapacity', 'location']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 50 &&
+             data.email is string && data.email.size() <= 200 &&
+             data.machineName is string && data.machineName.size() <= 200 &&
+             data.category is string && data.category.size() <= 100 &&
+             data.intendedProduct is string && data.intendedProduct.size() <= 200 &&
+             data.dailyCapacity is string && data.dailyCapacity.size() <= 100 &&
+             data.location is string && data.location.size() <= 100;
+    }
+
+
+    // --- COLLECTION MATCHES ---
+
+    // 1. Users Profile Collection
+    match /users/{userId} {
+      allow read: if true; // Public viewable profiles for community and verification
+      allow create: if isSignedIn(); // Any signed-in user can register their profile
+      allow update: if isSignedIn() && (request.auth.uid == userId || isAdmin()); // Profile owner or Administrator
+      allow delete: if isAdmin(); // Only Admin can delete profiles
+    }
+
+    // 2. Ecosystem Members List
+    match /ecosystem_members/{memberId} {
+      allow read: if true; // Publicly readable list for transparent crop capacities
+      allow create: if isSignedIn(); // Registered users can apply to the ecosystem members list
+      allow update, delete: if isAdmin() || isStaff(); // Only administrator or staff can approve/verify/delete
+    }
+
+    // 3. Products
+    match /products/{productId} {
+      allow read: if true; // Public access to marketplace catalog
+      allow create: if isGrower() || isPartner() || isAdmin() || isStaff(); // Only approved suppliers or admin can list
+      allow update: if isSignedIn() && (request.auth.uid == resource.data.supplierId || isAdmin() || isStaff()); // Only item supplier or admin
+      allow delete: if isSignedIn() && (request.auth.uid == resource.data.supplierId || isAdmin());
+    }
+
+    // 4. Buyer Inquiries
+    match /buyer_inquiries/{inquiryId} {
+      allow create: if isSignedIn(); // Any verified buyer/grower/member can make inquiries
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.supplierId || isAdmin() || isStaff());
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.buyerId || isAdmin());
+    }
+
+    // 5. Training Programs
+    match /training_programs/{programId} {
+      allow read: if true; // Public access to educational resources
+      allow create, update, delete: if isTrainer() || isAdmin(); // Only trainers or admin can publish courses
+    }
+
+    // 6. Training Requests
+    match /training_requests/{requestId} {
+      allow create: if isSignedIn(); // Users can register for training
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || isTrainer() || isAdmin() || isStaff());
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isTrainer() || isAdmin());
+    }
+
+    // 7. Opportunities (Notice Board)
+    match /opportunities/{opportunityId} {
+      allow read: if true; // Notice board is publicly viewable
+      allow create, update, delete: if isPartner() || isAdmin() || isStaff(); // Only partners or admins
+    }
+
+    // 8. Opportunity Applications
+    match /opportunity_applications/{applicationId} {
+      allow create: if isSignedIn(); // Signed in users can apply to notices
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.applicantId || isPartner() || isAdmin() || isStaff());
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.applicantId || isAdmin());
+    }
+
+    // 9. Contact Messages
+    match /contact_messages/{messageId} {
+      allow create: if true; // General public contact form submissions
+      allow read, update, delete: if isAdmin() || isStaff(); // Only admins or staff can read contact entries
+    }
+
+    // 10. Announcements
+    match /announcements/{announcementId} {
+      allow read: if true; // Public announcements
+      allow create, update, delete: if isAdmin() || isStaff(); // Admin or staff broadcast only
+    }
+
+    // 11. Machinery Inquiries
+    match /machinery_inquiries/{inquiryId} {
+      allow create: if isSignedIn(); // Verified users can request equipment or custom tools
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin() || isStaff());
+      allow update, delete: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin());
+    }
+
+    // 12. System Notifications
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && (resource.data.userId == 'public' || resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn(); // Logged in sessions can trigger alerts
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin()); // Allow users to mark read
+      allow delete: if isAdmin();
+    }
+
+    // 13. Security Audit Logs
+    match /security_logs/{logId} {
+      allow create: if true; // Allow client sessions to push login/logout and audit logs
+      allow read: if isAdmin(); // STRICT: Only Administrators can read the operations audit log
+      allow update, delete: if false; // STRICT: Immutable. Nobody can delete or modify security audit trails!
+    }
+
+    // 14. Connection validation
+    match /test/{documentId} {
+      allow read: if true;
+    }
+  }
+}
