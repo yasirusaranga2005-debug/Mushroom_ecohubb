@@ -1141,8 +1141,6 @@ export default function Dashboard({
                     </div>
                   </div>
 
-                  {/* Stats Row */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {/* Live Clock & Role Stats Section */}
                   <div className="space-y-4">
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-[24px] border border-stone-200 shadow-sm gap-4">
@@ -1403,7 +1401,6 @@ export default function Dashboard({
                           : 'පවතින ආර්ද්‍රතාවය පිපිණි හතු වගාවේ බීජ වර්ධනයට ඉතා හිතකරය. දිනකට 2 වතාවක් ජලය ඉසින්න. වාතාශ්‍රය හොඳින් පවත්වාගන්න. උෂ්ණත්වය සෙල්සියස් 30ට වඩා අඩුවෙන් තබන්න.'}
                       </p>
                     </div>
-                  </div>
                   </div>
 
                   {/* Database Management Controls - Real World Purge & Seed */}
