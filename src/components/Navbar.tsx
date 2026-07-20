@@ -64,7 +64,7 @@ export default function Navbar({
             </div>
 
             {/* Desktop Nav Items (Aligned Left) */}
-            <div className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 flex-grow justify-start ml-1 xl:ml-3 min-w-0 overflow-hidden">
+            <div className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 flex-grow justify-start ml-1 xl:ml-3">
               {navItems.map((item) => (
                 <button
                   key={item.id}
@@ -97,83 +97,96 @@ export default function Navbar({
 
              {currentUser ? (
               <div className="flex items-center space-x-1.5 xl:space-x-2">
-                {/* Desktop User Avatar / Logo Badge */}
-                <div className="flex items-center space-x-1.5 bg-brand-cream/40 border border-brand-border/40 py-1 pl-1 pr-2 rounded-xl select-none" id="nav-user-badge">
-                  <div className="h-7 w-7 rounded-full bg-brand-dark-green text-white flex items-center justify-center font-serif font-bold text-xs shadow-xs uppercase">
-                    {currentUser.fullName.charAt(0)}
-                  </div>
-                  <div className="text-left leading-none hidden 2xl:block">
-                    <p className="text-[11px] font-bold text-brand-text truncate max-w-[100px]">{currentUser.fullName}</p>
-                    <p className="text-[9px] text-brand-text/50 font-semibold capitalize">{currentUser.role}</p>
-                  </div>
-                </div>
-
                 {/* Notification Bell Dropdown */}
                 <div className="relative" id="navbar-notifications-container">
                   <button
                     type="button"
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2 text-brand-text/80 hover:text-brand-dark-green hover:bg-brand-cream/30 rounded-xl transition"
+                    className={`relative p-2 rounded-xl transition-all duration-200 ${
+                      showNotifications 
+                        ? 'bg-brand-dark-green text-white shadow-md' 
+                        : 'text-brand-text/80 hover:text-brand-dark-green hover:bg-brand-cream/50'
+                    }`}
                     title={language === 'EN' ? 'Alerts' : 'නිවේදන'}
                     id="btn-notifications-bell"
                   >
                     <Bell className="h-5 w-5" />
                     {notifications.filter(n => !n.read).length > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-red-600 text-white rounded-full flex items-center justify-center font-sans text-[9px] font-black animate-pulse shadow-xs">
+                      <span className="absolute -top-1.5 -right-1.5 h-4.5 w-4.5 bg-red-500 border-2 border-white text-white rounded-full flex items-center justify-center font-sans text-[9px] font-black shadow-sm animate-pulse">
                         {notifications.filter(n => !n.read).length}
                       </span>
                     )}
                   </button>
 
                   {showNotifications && (
-                    <div className="absolute right-0 mt-2.5 w-85 bg-white border border-gray-200/90 rounded-2xl shadow-xl z-50 overflow-hidden animate-fade-in" id="notifications-dropdown-menu">
-                      <div className="p-3.5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
-                        <span className="text-xs font-serif font-bold text-brand-dark-green">
-                          {language === 'EN' ? 'System Notifications' : 'සමුපකාර නිවේදන'}
-                        </span>
+                    <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white/90 backdrop-blur-xl border border-white/40 rounded-3xl shadow-2xl z-50 overflow-hidden animate-fade-in ring-1 ring-black/5" id="notifications-dropdown-menu">
+                      <div className="p-4 bg-gradient-to-r from-brand-dark-green to-brand-natural-green text-white flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Bell className="h-4 w-4 opacity-80" />
+                          <span className="text-sm font-sans font-bold">
+                            {language === 'EN' ? 'Notifications' : 'නිවේදන'}
+                          </span>
+                        </div>
                         {notifications.filter(n => !n.read).length > 0 && onMarkAllNotificationsAsRead && (
                           <button
                             type="button"
                             onClick={() => {
                               onMarkAllNotificationsAsRead();
                             }}
-                            className="text-[10px] font-extrabold text-brand-orange hover:underline uppercase tracking-wide"
+                            className="text-[10px] font-bold bg-white/20 hover:bg-white/30 px-2 py-1 rounded-lg transition-colors uppercase tracking-wider"
                           >
-                            {language === 'EN' ? 'Mark all read' : 'සියල්ල කියවූ ලෙස ලකුණු කරන්න'}
+                            {language === 'EN' ? 'Mark All Read' : 'සියල්ල කියවූ ලෙස'}
                           </button>
                         )}
                       </div>
-                      <div className="divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
+                      <div className="divide-y divide-gray-100/50 max-h-[350px] overflow-y-auto">
                         {notifications.length === 0 ? (
-                          <div className="p-8 text-center text-gray-400 text-xs">
-                            {language === 'EN' ? 'No recent alerts.' : 'නව නිවේදන කිසිවක් නැත.'}
+                          <div className="p-10 flex flex-col items-center justify-center text-center space-y-3">
+                            <div className="h-12 w-12 bg-gray-50 rounded-full flex items-center justify-center">
+                              <CheckCircle2 className="h-6 w-6 text-gray-300" />
+                            </div>
+                            <p className="text-gray-400 text-xs font-medium">
+                              {language === 'EN' ? 'You\'re all caught up!' : 'නව නිවේදන කිසිවක් නැත.'}
+                            </p>
                           </div>
                         ) : (
                           notifications.map((notif) => (
                             <div
                               key={notif.id}
-                              className={`p-3.5 hover:bg-stone-50 transition flex items-start gap-2.5 text-xs ${
-                                !notif.read ? 'bg-brand-cream/15 font-semibold' : ''
+                              className={`p-4 transition-colors flex items-start gap-3 text-xs relative overflow-hidden group ${
+                                !notif.read ? 'bg-brand-cream/30 hover:bg-brand-cream/50' : 'hover:bg-gray-50/80'
                               }`}
                             >
-                              <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${
-                                notif.type === 'security' ? 'bg-amber-100 text-amber-800' : 'bg-brand-cream text-brand-dark-green'
+                              {!notif.read && (
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-brand-orange" />
+                              )}
+                              <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${
+                                notif.type === 'security' 
+                                  ? 'bg-amber-100 text-amber-600 shadow-inner' 
+                                  : 'bg-brand-cream border border-brand-border/40 text-brand-dark-green shadow-inner'
                               }`}>
-                                <Bell className="h-3.5 w-3.5" />
+                                {notif.type === 'security' ? <Shield className="h-4 w-4" /> : <Bell className="h-4 w-4" />}
                               </div>
-                              <div className="flex-1 space-y-0.5 min-w-0">
-                                <p className="text-stone-900 truncate leading-tight font-serif font-bold text-[11px]">{notif.title}</p>
-                                <p className="text-stone-500 font-sans text-[10.5px] leading-relaxed break-words">{notif.message}</p>
-                                <p className="text-[9px] text-stone-400 font-mono">{new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                              <div className="flex-1 space-y-1 min-w-0 pr-6">
+                                <p className={`truncate leading-tight font-sans text-sm ${!notif.read ? 'font-bold text-stone-900' : 'font-semibold text-stone-700'}`}>
+                                  {notif.title}
+                                </p>
+                                <p className="text-stone-500 font-sans text-[11px] leading-relaxed break-words line-clamp-2">
+                                  {notif.message}
+                                </p>
+                                <p className="text-[10px] text-stone-400 font-mono font-medium flex items-center gap-1">
+                                  <Clock className="h-3 w-3 opacity-50" />
+                                  {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </p>
                               </div>
                               {!notif.read && onMarkNotificationAsRead && (
                                 <button
                                   type="button"
                                   onClick={() => onMarkNotificationAsRead(notif.id)}
-                                  className="p-1 hover:bg-gray-200 rounded-md text-gray-400 hover:text-brand-dark-green shrink-0 transition"
-                                  title="Mark read"
+                                  className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 bg-white border border-gray-200 rounded-lg text-gray-400 hover:text-brand-dark-green hover:border-brand-dark-green hover:shadow-sm opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100"
+                                  title="Mark as read"
                                 >
-                                  <Check className="h-3.5 w-3.5" />
+                                  <Check className="h-4 w-4" />
                                 </button>
                               )}
                             </div>
