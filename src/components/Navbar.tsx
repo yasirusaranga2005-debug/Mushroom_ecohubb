@@ -201,11 +201,12 @@ export default function Navbar({
                 </button>
                 <button
                   onClick={onLogout}
-                  className="p-2 text-brand-text/60 hover:text-red-700 hover:bg-red-50 rounded-xl transition"
+                  className="flex items-center space-x-1.5 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-sans font-bold whitespace-nowrap transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
                   title="Logout"
                   id="btn-logout"
                 >
-                  <LogOut className="h-5 w-5" />
+                  <LogOut className="h-4 w-4 shrink-0" />
+                  <span className="hidden xl:inline">{language === 'EN' ? 'Logout' : 'ඉවත් වන්න'}</span>
                 </button>
               </div>
             ) : (

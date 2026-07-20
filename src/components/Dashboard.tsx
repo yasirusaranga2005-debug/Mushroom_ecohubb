@@ -34,7 +34,9 @@ import {
   Thermometer,
   Droplets,
   CloudLightning,
-  Sun
+  Sun,
+  Sprout,
+  Globe
 } from 'lucide-react';
 import {
   UserProfile,
@@ -639,271 +641,269 @@ export default function Dashboard({
 
 
       {/* Main Dashboard Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        {/* Sidebar Nav (3 cols) */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="bg-[#2D2D2A] text-[#F5F5F0] p-6 rounded-[32px] space-y-6 shadow-md">
-            <div className="flex items-center space-x-3 border-b border-[#F5F5F0]/10 pb-4">
-              <div className="p-2 bg-[#8B4513] rounded-xl text-white">
-                <User className="h-5 w-5" />
-              </div>
-              <div className="overflow-hidden">
-                <h3 className="font-serif font-bold text-white text-sm truncate leading-none">
-                  {currentUser.fullName}
-                </h3>
-                <span className="inline-block bg-[#5A5A40]/40 text-[#F5F5F0] text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md mt-1.5 capitalize">
-                  {currentUser.role}
-                </span>
+        {/* Sidebar Nav (3 cols) - Modern Full-Height Glassmorphism */}
+        <div className="lg:col-span-3">
+          <div className="lg:sticky lg:top-20 space-y-3">
+            {/* User Identity Card */}
+            <div className="relative overflow-hidden rounded-[28px] border border-white/20 shadow-lg">
+              <div className={`absolute inset-0 ${
+                currentUser.role === 'admin' ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-900' :
+                currentUser.role === 'grower' ? 'bg-gradient-to-br from-emerald-900 via-green-800 to-lime-900' :
+                currentUser.role === 'buyer' ? 'bg-gradient-to-br from-blue-900 via-cyan-800 to-sky-900' :
+                currentUser.role === 'trainer' ? 'bg-gradient-to-br from-purple-900 via-violet-800 to-fuchsia-900' :
+                currentUser.role === 'partner' ? 'bg-gradient-to-br from-amber-900 via-orange-800 to-yellow-900' :
+                'bg-gradient-to-br from-stone-900 via-stone-800 to-neutral-900'
+              }`}></div>
+              <div className="relative p-5 space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className={`h-11 w-11 rounded-2xl flex items-center justify-center text-white font-serif font-black text-lg shadow-md ${
+                    currentUser.role === 'admin' ? 'bg-indigo-500/30 border border-indigo-400/30' :
+                    currentUser.role === 'grower' ? 'bg-emerald-500/30 border border-emerald-400/30' :
+                    currentUser.role === 'buyer' ? 'bg-cyan-500/30 border border-cyan-400/30' :
+                    currentUser.role === 'trainer' ? 'bg-violet-500/30 border border-violet-400/30' :
+                    currentUser.role === 'partner' ? 'bg-amber-500/30 border border-amber-400/30' :
+                    'bg-stone-500/30 border border-stone-400/30'
+                  }`}>
+                    {currentUser.fullName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="overflow-hidden flex-1">
+                    <h3 className="font-serif font-bold text-white text-sm truncate leading-none">
+                      {currentUser.fullName}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className={`inline-flex items-center gap-1 text-[9px] font-mono font-black uppercase tracking-widest px-2 py-0.5 rounded-md ${
+                        currentUser.role === 'admin' ? 'bg-indigo-400/20 text-indigo-200 border border-indigo-400/20' :
+                        currentUser.role === 'grower' ? 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/20' :
+                        currentUser.role === 'buyer' ? 'bg-cyan-400/20 text-cyan-200 border border-cyan-400/20' :
+                        currentUser.role === 'trainer' ? 'bg-violet-400/20 text-violet-200 border border-violet-400/20' :
+                        currentUser.role === 'partner' ? 'bg-amber-400/20 text-amber-200 border border-amber-400/20' :
+                        'bg-stone-400/20 text-stone-200 border border-stone-400/20'
+                      }`}>
+                        {currentUser.role === 'admin' && <Shield className="h-2.5 w-2.5" />}
+                        {currentUser.role === 'grower' && <Sprout className="h-2.5 w-2.5" />}
+                        {currentUser.role === 'buyer' && <ShoppingBag className="h-2.5 w-2.5" />}
+                        {currentUser.role === 'trainer' && <GraduationCap className="h-2.5 w-2.5" />}
+                        {currentUser.role === 'partner' && <Wrench className="h-2.5 w-2.5" />}
+                        {currentUser.role === 'staff' && <Activity className="h-2.5 w-2.5" />}
+                        {currentUser.role}
+                      </span>
+                      <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${
+                        currentUser.status === 'approved' ? 'bg-emerald-400' : 'bg-amber-400'
+                      }`}></span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-white/40 font-mono border-t border-white/10 pt-2.5">
+                  ID: {currentUser.membershipId || currentUser.uid.slice(0, 12)}
+                </div>
               </div>
             </div>
 
-            {/* Menu Items */}
-            <nav className="space-y-1.5 font-sans">
-              <button
-                onClick={() => setActiveTab('summary')}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                  activeTab === 'summary' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                }`}
-              >
-                <LayoutDashboard className="h-4 w-4" />
-                <span>{language === 'EN' ? 'Overview' : 'දළ විශ්ලේෂණය'}</span>
-              </button>
+            {/* Navigation Menu */}
+            <div className="bg-white/80 backdrop-blur-xl border border-stone-200/60 rounded-[28px] shadow-sm overflow-hidden">
+              <nav className="p-3 space-y-0.5 font-sans">
+                {/* Overview - All Roles */}
+                <button
+                  onClick={() => setActiveTab('summary')}
+                  className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                    activeTab === 'summary' 
+                      ? 'bg-gradient-to-r from-[#2D2D2A] to-[#3D3D35] text-white shadow-md scale-[1.01]' 
+                      : 'hover:bg-stone-100/80 text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  <LayoutDashboard className="h-4 w-4 shrink-0" />
+                  <span>{language === 'EN' ? 'Overview' : 'දළ විශ්ලේෂණය'}</span>
+                </button>
 
-              {/* Admin specific tabs */}
-              {currentUser.role === 'admin' && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('members')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'members' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Ecosystem Members' : 'සාමාජික කළමනාකරණය'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('inquiries')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'inquiries' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Inbox className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Buyer Inquiries' : 'මිල විමසීම්'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('machinery_inquiries')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'machinery_inquiries' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Wrench className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Machinery Inquiries' : 'යන්ත්‍ර විමසීම්'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('products')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'products' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <ShoppingBag className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Manage Products' : 'නිෂ්පාදන ලැයිස්තුව'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('opportunities')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'opportunities' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Notice Board' : 'අවස්ථා පුවරුව'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('contacts')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'contacts' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Mail className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Contact Messages' : 'ලිපි සහ පණිවිඩ'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('user_control')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'user_control' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'User Control' : 'පරිශීලක පාලනය'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('security_logs')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'security_logs' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Shield className="h-4 w-4 text-emerald-400" />
-                    <span>{language === 'EN' ? 'Security Audit' : 'ආරක්ෂක විගණනය'}</span>
-                  </button>
-                </>
-              )}
+                {/* ── Admin Tabs ── */}
+                {currentUser.role === 'admin' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-indigo-500/80">
+                        {language === 'EN' ? '⚡ Administration' : '⚡ පරිපාලනය'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'members', icon: <Users className="h-4 w-4" />, en: 'Member Approvals', si: 'සාමාජික අනුමැතිය' },
+                      { id: 'user_control', icon: <Shield className="h-4 w-4" />, en: 'User Control Panel', si: 'පරිශීලක පාලනය' },
+                      { id: 'inquiries', icon: <Inbox className="h-4 w-4" />, en: 'Buyer Inquiries', si: 'මිල විමසීම්' },
+                      { id: 'machinery_inquiries', icon: <Wrench className="h-4 w-4" />, en: 'Machinery Requests', si: 'යන්ත්‍ර ඉල්ලීම්' },
+                      { id: 'products', icon: <ShoppingBag className="h-4 w-4" />, en: 'All Products', si: 'සියලුම නිෂ්පාදන' },
+                      { id: 'training_reqs', icon: <GraduationCap className="h-4 w-4" />, en: 'Training Requests', si: 'පුහුණු ඉල්ලීම්' },
+                      { id: 'opportunities', icon: <Briefcase className="h-4 w-4" />, en: 'Notice Board', si: 'දැන්වීම් පුවරුව' },
+                      { id: 'contacts', icon: <Mail className="h-4 w-4" />, en: 'Contact Messages', si: 'සම්බන්ධතා' },
+                      { id: 'security_logs', icon: <Key className="h-4 w-4" />, en: 'Security Audit', si: 'ආරක්ෂක විගණනය' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-[#2D2D2A] to-[#3D3D35] text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-stone-100/80 text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
 
-              {/* Grower specific tabs */}
-              {currentUser.role === 'grower' && (
-                <div className="px-3 py-2.5 bg-stone-50/5 border border-stone-100/10 rounded-xl space-y-2">
-                  <span className="block text-[10px] font-bold text-amber-500 uppercase tracking-wider">
-                    {language === 'EN' ? 'Grower Panel' : 'වගාකරු පුවරුව'}
-                  </span>
+                {/* ── Grower Tabs ── */}
+                {currentUser.role === 'grower' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-emerald-600/80">
+                        {language === 'EN' ? '🍄 Farm Operations' : '🍄 ගොවිපල'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'harvest_log', icon: <FileText className="h-4 w-4" />, en: 'Daily Harvest Log', si: 'දෛනික අස්වැන්න සටහන' },
+                      { id: 'yield_calculator', icon: <Calculator className="h-4 w-4" />, en: 'Yield & Climate Tool', si: 'අස්වනු හා දේශගුණ' },
+                      { id: 'products', icon: <ShoppingBag className="h-4 w-4" />, en: 'My Listed Products', si: 'මගේ නිෂ්පාදන' },
+                      { id: 'my_orders', icon: <Inbox className="h-4 w-4" />, en: 'Buyer Orders', si: 'ගැනුම්කරු ඇණවුම්' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-emerald-700 to-green-600 text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-emerald-50 text-stone-600 hover:text-emerald-800'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ── Buyer Tabs ── */}
+                {currentUser.role === 'buyer' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-blue-600/80">
+                        {language === 'EN' ? '🛒 Procurement Hub' : '🛒 මිලදී ගැනීම්'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'my_inquiries', icon: <Inbox className="h-4 w-4" />, en: 'My Purchase Inquiries', si: 'මගේ මිලදී ගැනීම් විමසීම්' },
+                      { id: 'supplier_directory', icon: <Globe className="h-4 w-4" />, en: 'Supplier Directory', si: 'සැපයුම්කරු නාමාවලිය' },
+                      { id: 'my_machinery', icon: <Wrench className="h-4 w-4" />, en: 'My Equipment Inquiries', si: 'මගේ යන්ත්‍ර විමසීම්' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-blue-700 to-cyan-600 text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-blue-50 text-stone-600 hover:text-blue-800'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ── Trainer Tabs ── */}
+                {currentUser.role === 'trainer' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-purple-600/80">
+                        {language === 'EN' ? '🎓 Training Portal' : '🎓 පුහුණු මධ්‍යස්ථානය'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'training_reqs', icon: <Inbox className="h-4 w-4" />, en: 'Student Slot Requests', si: 'ශිෂ්‍ය ඉල්ලීම්' },
+                      { id: 'programs', icon: <GraduationCap className="h-4 w-4" />, en: 'Course Manager', si: 'පාඨමාලා කළමනාකරණය' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-purple-700 to-violet-600 text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-purple-50 text-stone-600 hover:text-purple-800'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ── Partner Tabs ── */}
+                {currentUser.role === 'partner' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-amber-600/80">
+                        {language === 'EN' ? '⚙️ Partner Hub' : '⚙️ හවුල්කරු කේන්ද්‍රය'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'machinery_inquiries', icon: <Wrench className="h-4 w-4" />, en: 'Customer Inquiries', si: 'පාරිභෝගික විමසීම්' },
+                      { id: 'products', icon: <ShoppingBag className="h-4 w-4" />, en: 'Equipment Catalog', si: 'උපකරණ නාමාවලිය' },
+                      { id: 'opportunities', icon: <Briefcase className="h-4 w-4" />, en: 'B2B Opportunities', si: 'B2B අවස්ථා' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-amber-700 to-orange-600 text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-amber-50 text-stone-600 hover:text-amber-800'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ── Staff Tabs ── */}
+                {currentUser.role === 'staff' && (
+                  <>
+                    <div className="px-3 pt-3 pb-1">
+                      <span className="text-[9px] font-black uppercase tracking-[0.15em] text-stone-500/80">
+                        {language === 'EN' ? '🛡️ Staff Operations' : '🛡️ කාර්ය මණ්ඩල මෙහෙයුම්'}
+                      </span>
+                    </div>
+                    {[
+                      { id: 'members', icon: <Users className="h-4 w-4" />, en: 'Member Verification', si: 'සාමාජික සත්‍යාපනය' },
+                      { id: 'products', icon: <ShoppingBag className="h-4 w-4" />, en: 'Product Management', si: 'නිෂ්පාදන කළමනාකරණය' },
+                      { id: 'inquiries', icon: <Inbox className="h-4 w-4" />, en: 'Buyer Inquiries', si: 'මිල විමසීම්' },
+                      { id: 'machinery_inquiries', icon: <Wrench className="h-4 w-4" />, en: 'Machinery Requests', si: 'යන්ත්‍ර ඉල්ලීම්' },
+                      { id: 'opportunities', icon: <Briefcase className="h-4 w-4" />, en: 'Notice Board', si: 'දැන්වීම් පුවරුව' },
+                      { id: 'contacts', icon: <Mail className="h-4 w-4" />, en: 'Contact Messages', si: 'ලිපි සහ පණිවිඩ' },
+                    ].map(tab => (
+                      <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                        className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                          activeTab === tab.id 
+                            ? 'bg-gradient-to-r from-stone-700 to-neutral-600 text-white shadow-md scale-[1.01]' 
+                            : 'hover:bg-stone-100/80 text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        {tab.icon}
+                        <span>{language === 'EN' ? tab.en : tab.si}</span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ── Common: My Profile ── */}
+                <div className="border-t border-stone-200/60 mt-2 pt-2">
                   <button
-                    onClick={() => setActiveTab('yield_calculator')}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-serif font-bold flex items-center space-x-2 transition ${
-                      activeTab === 'yield_calculator' ? 'bg-[#8B4513] text-white' : 'hover:bg-white/5 text-[#F5F5F0]/70'
+                    onClick={() => setActiveTab('profile')}
+                    className={`w-full text-left px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center space-x-2.5 transition-all duration-200 ${
+                      activeTab === 'profile' 
+                        ? 'bg-gradient-to-r from-[#2D2D2A] to-[#3D3D35] text-white shadow-md scale-[1.01]' 
+                        : 'hover:bg-stone-100/80 text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    <Calculator className="h-3.5 w-3.5" />
-                    <span>{language === 'EN' ? 'Yield Calculator' : 'අස්වනු කැල්කියුලේටරය'}</span>
+                    <Settings className="h-4 w-4 shrink-0" />
+                    <span>{language === 'EN' ? 'My Profile' : 'මගේ පැතිකඩ'}</span>
                   </button>
-                  <button
-                    onClick={() => setActiveTab('products')}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-serif font-bold flex items-center space-x-2 transition ${
-                      activeTab === 'products' ? 'bg-[#8B4513] text-white' : 'hover:bg-white/5 text-[#F5F5F0]/70'
-                    }`}
-                  >
-                    <ShoppingBag className="h-3.5 w-3.5" />
-                    <span>{language === 'EN' ? 'My Crops / Products' : 'මගේ අස්වැන්න / නිෂ්පාදන'}</span>
-                  </button>
-                  <span className="block text-[9px] text-stone-400 leading-normal font-medium">
-                    {language === 'EN' 
-                      ? 'Growers co-operate under consolidated wholesale contracts.' 
-                      : 'වගාකරුවන් තොග ඇණවුම් සඳහා ලියාපදිංචි වී ඇත.'}
-                  </span>
                 </div>
-              )}
-
-              {/* Trainer specific tabs */}
-              {currentUser.role === 'trainer' && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('training_reqs')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'training_reqs' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <GraduationCap className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Training Requests' : 'පුහුණු අයදුම්පත්'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('programs')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'programs' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <CheckSquare className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Manage Classes' : 'පාඨමාලා එකතු කිරීම'}</span>
-                  </button>
-                </>
-              )}
-
-              {/* Buyer specific tabs */}
-              {currentUser.role === 'buyer' && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('my_inquiries')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'my_inquiries' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Inbox className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'My Sent Inquiries' : 'යැවූ විමසීම්'}</span>
-                  </button>
-                </>
-              )}
-
-              {/* Partner specific tabs */}
-              {currentUser.role === 'partner' && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('products')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'products' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <ShoppingBag className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Listed Products' : 'නිෂ්පාදන ලැයිස්තුව'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('opportunities')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'opportunities' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Notice Board' : 'අවස්ථා පුවරුව'}</span>
-                  </button>
-                </>
-              )}
-
-              {/* Staff specific tabs */}
-              {currentUser.role === 'staff' && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('products')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'products' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <ShoppingBag className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Manage Products' : 'නිෂ්පාදන ලැයිස්තුව'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('inquiries')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'inquiries' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Inbox className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Buyer Inquiries' : 'මිල විමසීම්'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('machinery_inquiries')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'machinery_inquiries' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Wrench className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Machinery Inquiries' : 'යන්ත්‍ර විමසීම්'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('opportunities')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'opportunities' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Briefcase className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Notice Board' : 'අවස්ථා පුවරුව'}</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('contacts')}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                      activeTab === 'contacts' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                    }`}
-                  >
-                    <Mail className="h-4 w-4" />
-                    <span>{language === 'EN' ? 'Contact Messages' : 'ලිපි සහ පණිවිඩ'}</span>
-                  </button>
-                </>
-              )}
-
-              <button
-                onClick={() => setActiveTab('profile')}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-serif font-bold flex items-center space-x-2.5 transition ${
-                  activeTab === 'profile' ? 'bg-[#5A5A40] text-white shadow-md' : 'hover:bg-[#F5F5F0]/5 text-[#F5F5F0]/70 hover:text-white'
-                }`}
-              >
-                <Settings className="h-4 w-4" />
-                <span>{language === 'EN' ? 'My Profile' : 'මගේ පැතිකඩ'}</span>
-              </button>
-            </nav>
+              </nav>
+            </div>
           </div>
         </div>
 
@@ -1042,25 +1042,85 @@ export default function Dashboard({
               {/* SUMMARY TAB */}
               {activeTab === 'summary' && (
                 <div className="space-y-6 animate-fade-in" id="dashboard-summary">
-                  {/* Title card */}
-                  <div className="bg-[#2D2D2A] text-[#F5F5F0] p-8 rounded-[32px] border border-[#5A5A40]/10 flex flex-col sm:flex-row justify-between items-center gap-4 shadow-sm">
-                    <div>
-                      <h2 className="text-2xl font-serif font-bold tracking-tight text-white">
-                        {language === 'EN' ? `Ayu-bowan, ${currentUser.fullName}` : `ආයුබෝවන්, ${currentUser.fullName}`}
-                      </h2>
-                      <p className="text-[#F5F5F0]/70 text-xs mt-1 font-sans">
-                        {language === 'EN' 
-                          ? 'Welcome to your Mushroom Eco Hub terminal. Let us cooperate for growth.' 
-                          : 'හතු පරිසර කේන්ද්‍ර පියසට සාදරයෙන් පිළිගනිමු.'}
-                      </p>
+                  {/* Modern Role-Specific Welcome Hero */}
+                  <div className={`relative overflow-hidden p-6 sm:p-8 rounded-[28px] shadow-lg border ${
+                    currentUser.role === 'admin' ? 'border-indigo-500/20' :
+                    currentUser.role === 'grower' ? 'border-emerald-500/20' :
+                    currentUser.role === 'buyer' ? 'border-cyan-500/20' :
+                    currentUser.role === 'trainer' ? 'border-violet-500/20' :
+                    currentUser.role === 'partner' ? 'border-amber-500/20' :
+                    'border-stone-500/20'
+                  }`}>
+                    <div className={`absolute inset-0 ${
+                      currentUser.role === 'admin' ? 'bg-gradient-to-br from-slate-900 via-indigo-900 to-purple-900' :
+                      currentUser.role === 'grower' ? 'bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900' :
+                      currentUser.role === 'buyer' ? 'bg-gradient-to-br from-blue-900 via-cyan-800 to-sky-900' :
+                      currentUser.role === 'trainer' ? 'bg-gradient-to-br from-purple-900 via-violet-800 to-fuchsia-900' :
+                      currentUser.role === 'partner' ? 'bg-gradient-to-br from-amber-900 via-orange-800 to-red-900' :
+                      'bg-gradient-to-br from-stone-800 via-stone-700 to-neutral-800'
+                    }`}></div>
+                    {/* Decorative Pattern */}
+                    <div className="absolute top-0 right-0 w-48 h-48 opacity-5">
+                      <svg viewBox="0 0 200 200" fill="currentColor" className="text-white w-full h-full">
+                        <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="1" />
+                        <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" strokeWidth="1" />
+                        <circle cx="100" cy="100" r="40" fill="none" stroke="currentColor" strokeWidth="1" />
+                      </svg>
                     </div>
-                    <button 
-                      onClick={refreshAllData}
-                      className="p-3 bg-[#5A5A40] hover:bg-[#4E4E37] text-white rounded-xl transition flex items-center space-x-2 text-xs font-serif font-bold border border-[#5A5A40]"
-                    >
-                      <RefreshCw className="h-4 w-4 shrink-0" />
-                      <span>Refresh</span>
-                    </button>
+                    <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1.5 text-[10px] font-mono font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
+                            currentUser.role === 'admin' ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-400/20' :
+                            currentUser.role === 'grower' ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/20' :
+                            currentUser.role === 'buyer' ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-400/20' :
+                            currentUser.role === 'trainer' ? 'bg-violet-500/20 text-violet-200 border border-violet-400/20' :
+                            currentUser.role === 'partner' ? 'bg-amber-500/20 text-amber-200 border border-amber-400/20' :
+                            'bg-stone-500/20 text-stone-200 border border-stone-400/20'
+                          }`}>
+                            {currentUser.role === 'admin' && '⚡'}
+                            {currentUser.role === 'grower' && '🍄'}
+                            {currentUser.role === 'buyer' && '🛒'}
+                            {currentUser.role === 'trainer' && '🎓'}
+                            {currentUser.role === 'partner' && '⚙️'}
+                            {currentUser.role === 'staff' && '🛡️'}
+                            {language === 'EN' ? `${currentUser.role} Dashboard` : `${currentUser.role} නියමු පුවරුව`}
+                          </span>
+                        </div>
+                        <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-white">
+                          {language === 'EN' 
+                            ? `Welcome back, ${currentUser.fullName.split(' ')[0]}` 
+                            : `ආපසු සාදරයෙන් පිළිගනිමු, ${currentUser.fullName.split(' ')[0]}`}
+                        </h2>
+                        <p className="text-white/60 text-xs font-sans max-w-lg leading-relaxed">
+                          {currentUser.role === 'admin' && (language === 'EN' 
+                            ? 'Manage ecosystem members, monitor inquiries, enforce security, and oversee all co-operative operations from your control center.'
+                            : 'සාමාජිකයන් කළමනාකරණය, විමසීම් අධීක්ෂණය, ආරක්ෂාව බලාත්මක කිරීම සහ සමුපකාර මෙහෙයුම් අධීක්ෂණය.')}
+                          {currentUser.role === 'grower' && (language === 'EN' 
+                            ? 'Track your daily harvests, manage product listings, receive buyer orders, and use the yield calculator to optimize your farm operations.'
+                            : 'ඔබගේ දෛනික අස්වැන්න පසුවිපරම් කිරීම, නිෂ්පාදන ලැයිස්තු කළමනාකරණය, සහ අස්වනු ප්‍රශස්තකරණය.')}
+                          {currentUser.role === 'buyer' && (language === 'EN' 
+                            ? 'Browse verified suppliers, submit purchase inquiries, track your orders, and access the best mushroom products across Sri Lanka.'
+                            : 'සත්‍යාපිත සැපයුම්කරුවන් පිරික්සීම, මිලදී ගැනීමේ විමසීම් ඉදිරිපත් කිරීම සහ ශ්‍රී ලංකාවේ හොඳම නිෂ්පාදන ලබා ගැනීම.')}
+                          {currentUser.role === 'trainer' && (language === 'EN' 
+                            ? 'Manage your training courses, approve student slot requests, track trainee progress, and build Sri Lanka\'s mushroom cultivation expertise.'
+                            : 'ඔබගේ පුහුණු පාඨමාලා කළමනාකරණය, ශිෂ්‍ය ඉල්ලීම් අනුමත කිරීම සහ ශ්‍රී ලංකාවේ හතු වගා විශේෂඥ දැනුම ගොඩනැගීම.')}
+                          {currentUser.role === 'partner' && (language === 'EN' 
+                            ? 'Manage customer equipment inquiries, publish your machinery catalog, and connect with B2B opportunities across the co-operative network.'
+                            : 'පාරිභෝගික උපකරණ විමසීම් කළමනාකරණය, යන්ත්‍ර සූත්‍ර ප්‍රකාශ කිරීම සහ B2B අවස්ථා සමඟ සම්බන්ධ වීම.')}
+                          {currentUser.role === 'staff' && (language === 'EN' 
+                            ? 'Verify member credentials, manage product listings, process inquiries, and support the co-operative ecosystem operations.'
+                            : 'සාමාජික තොරතුරු සත්‍යාපනය, නිෂ්පාදන කළමනාකරණය, විමසීම් ක්‍රියාවලිය සහ සමුපකාර මෙහෙයුම් සහාය.')}
+                        </p>
+                      </div>
+                      <button 
+                        onClick={refreshAllData}
+                        className="px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white rounded-2xl transition-all duration-200 flex items-center space-x-2 text-xs font-bold border border-white/10 hover:border-white/20 shadow-sm shrink-0"
+                      >
+                        <RefreshCw className="h-4 w-4 shrink-0" />
+                        <span>{language === 'EN' ? 'Refresh' : 'යාවත්කාලීන'}</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* Stats Row */}
@@ -1251,8 +1311,8 @@ export default function Dashboard({
                 </div>
               )}
 
-              {/* MEMBER LIST TAB (ADMIN) */}
-              {activeTab === 'members' && currentUser.role === 'admin' && (
+              {/* MEMBER LIST TAB (ADMIN / STAFF) */}
+              {activeTab === 'members' && ['admin', 'staff'].includes(currentUser.role) && (
                 <div className="space-y-4 animate-fade-in" id="tab-members">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                     <h3 className="text-xl font-bold text-stone-900">Ecosystem Membership Forms</h3>
@@ -2944,6 +3004,163 @@ export default function Dashboard({
                   </div>
                 );
               })()}
+
+
+              {/* ═══ GROWER: DAILY HARVEST LOG ═══ */}
+              {activeTab === 'harvest_log' && currentUser.role === 'grower' && (
+                <div className="space-y-6 animate-fade-in" id="tab-harvest-log">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-bold text-stone-900">
+                      {language === 'EN' ? '🍄 Daily Harvest Production Log' : '🍄 දෛනික අස්වැන්න නිෂ්පාදන සටහන'}
+                    </h3>
+                  </div>
+                  
+                  <div className="bg-white border border-emerald-200/60 p-6 rounded-[24px] shadow-sm space-y-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="bg-emerald-50 border border-emerald-200/60 p-5 rounded-2xl text-center">
+                        <span className="block text-[10px] uppercase text-emerald-600 font-bold tracking-wider mb-1">
+                          {language === 'EN' ? 'Total Products Listed' : 'ලැයිස්තුගත නිෂ්පාදන'}
+                        </span>
+                        <span className="text-3xl font-extrabold text-emerald-800">{myProducts.length}</span>
+                      </div>
+                      <div className="bg-amber-50 border border-amber-200/60 p-5 rounded-2xl text-center">
+                        <span className="block text-[10px] uppercase text-amber-600 font-bold tracking-wider mb-1">
+                          {language === 'EN' ? 'Active Buyer Orders' : 'සක්‍රීය ගැනුම්කරු ඇණවුම්'}
+                        </span>
+                        <span className="text-3xl font-extrabold text-amber-800">{myProductInquiries.filter(i => i.status === 'New' || i.status === 'Contacted').length}</span>
+                      </div>
+                      <div className="bg-blue-50 border border-blue-200/60 p-5 rounded-2xl text-center">
+                        <span className="block text-[10px] uppercase text-blue-600 font-bold tracking-wider mb-1">
+                          {language === 'EN' ? 'Completed Orders' : 'සම්පූර්ණ ඇණවුම්'}
+                        </span>
+                        <span className="text-3xl font-extrabold text-blue-800">{myProductInquiries.filter(i => i.status === 'Converted' || i.status === 'Closed').length}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-emerald-50/50 border border-emerald-200/40 rounded-xl p-4 text-xs text-stone-700 space-y-1.5">
+                      <p className="font-bold text-emerald-800 flex items-center gap-1.5">
+                        <Check className="h-4 w-4" />
+                        {language === 'EN' ? 'Cultivation Tip:' : 'වගා උපදෙස්:'}
+                      </p>
+                      <p className="font-sans leading-relaxed text-stone-600">
+                        {language === 'EN' 
+                          ? 'Record your daily harvest yields consistently to track seasonal trends. Use the Yield & Climate Tool to forecast optimal harvest windows based on current weather conditions in your district.'
+                          : 'කාලීන ප්‍රවණතා පසුවිපරම් කිරීමට ඔබගේ දෛනික අස්වැන්න ප්‍රතිදාන ස්ථාවරව සටහන් කරන්න. ඔබගේ දිස්ත්‍රික්කයේ දේශගුණය අනුව ප්‍රශස්ත අස්වනු කාලසීමාවන් පුරෝකථනය කිරීමට අස්වනු සහ දේශගුණ මෙවලම භාවිත කරන්න.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ═══ GROWER: BUYER ORDERS RECEIVED ═══ */}
+              {activeTab === 'my_orders' && currentUser.role === 'grower' && (
+                <div className="space-y-4 animate-fade-in" id="tab-my-orders">
+                  <h3 className="text-xl font-bold text-stone-900">
+                    {language === 'EN' ? '📦 Buyer Orders for My Products' : '📦 මගේ නිෂ්පාදන සඳහා ගැනුම්කරු ඇණවුම්'}
+                  </h3>
+                  {myProductInquiries.length === 0 ? (
+                    <div className="bg-white border border-stone-200 p-10 rounded-2xl text-center text-stone-400 text-xs">
+                      {language === 'EN' ? 'No buyer orders received yet. List your products on the Marketplace to attract buyers.' : 'තවම ගැනුම්කරු ඇණවුම් ලැබී නැත. ගැනුම්කරුවන් ආකර්ෂණය කිරීමට වෙළඳපොළේ ඔබගේ නිෂ්පාදන ලැයිස්තුගත කරන්න.'}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {myProductInquiries.map((inq) => (
+                        <div key={inq.id} className="bg-white border border-stone-200 rounded-2xl p-5 space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-emerald-600">PRODUCT ORDER</span>
+                              <h4 className="font-bold text-stone-900">{inq.productName}</h4>
+                              <p className="text-xs text-stone-500">Buyer: {inq.buyerName} ({inq.email})</p>
+                            </div>
+                            <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase ${
+                              inq.status === 'New' ? 'bg-emerald-100 text-emerald-800' :
+                              inq.status === 'Contacted' ? 'bg-blue-100 text-blue-800' :
+                              'bg-stone-100 text-stone-800'
+                            }`}>{inq.status}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-xs bg-stone-50 p-3 rounded-xl border border-stone-100">
+                            <div><strong>Qty:</strong> {inq.requiredQuantity}</div>
+                            <div><strong>Delivery:</strong> {inq.deliveryLocation}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ═══ BUYER: SUPPLIER DIRECTORY ═══ */}
+              {activeTab === 'supplier_directory' && currentUser.role === 'buyer' && (
+                <div className="space-y-4 animate-fade-in" id="tab-supplier-directory">
+                  <h3 className="text-xl font-bold text-stone-900">
+                    {language === 'EN' ? '🌐 Verified Supplier Directory' : '🌐 සත්‍යාපිත සැපයුම්කරු නාමාවලිය'}
+                  </h3>
+                  {members.filter(m => m.role === 'grower' && m.status === 'approved').length === 0 ? (
+                    <div className="bg-white border border-stone-200 p-10 rounded-2xl text-center text-stone-400 text-xs">
+                      {language === 'EN' ? 'No verified suppliers found.' : 'සත්‍යාපිත සැපයුම්කරුවන් හමු නොවීය.'}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {members.filter(m => m.role === 'grower' && m.status === 'approved').map((supplier) => (
+                        <div key={supplier.id} className="bg-white border border-stone-200 rounded-2xl p-5 space-y-3 hover:shadow-md transition">
+                          <div className="flex items-center space-x-3">
+                            <div className="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+                              {supplier.fullName.charAt(0)}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-stone-900 text-sm">{supplier.fullName}</h4>
+                              <p className="text-[10px] text-stone-500">{supplier.city}, {supplier.district}</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2 text-xs text-stone-600">
+                            <div><strong>Experience:</strong> {supplier.experienceLevel}</div>
+                            <div><strong>Capacity:</strong> {supplier.monthlyCapacity || 'N/A'}</div>
+                            <div><strong>Speciality:</strong> {supplier.interestedArea}</div>
+                            <div><strong>Contact:</strong> {supplier.phone}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ═══ BUYER: MY MACHINERY/EQUIPMENT INQUIRIES ═══ */}
+              {activeTab === 'my_machinery' && currentUser.role === 'buyer' && (
+                <div className="space-y-4 animate-fade-in" id="tab-my-machinery">
+                  <h3 className="text-xl font-bold text-stone-900">
+                    {language === 'EN' ? '⚙️ My Equipment Inquiries' : '⚙️ මගේ යන්ත්‍ර විමසීම්'}
+                  </h3>
+                  {mySubmittedMachineryInquiries.length === 0 ? (
+                    <div className="bg-white border border-stone-200 p-10 rounded-2xl text-center text-stone-400 text-xs">
+                      {language === 'EN' ? 'No equipment inquiries submitted. Visit the Machinery page to browse and submit inquiries.' : 'යන්ත්‍ර විමසීම් ඉදිරිපත් කර නොමැත. යන්ත්‍රෝපකරණ පිටුවට ගොස් විමසීම් ඉදිරිපත් කරන්න.'}
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {mySubmittedMachineryInquiries.map((inq) => (
+                        <div key={inq.id} className="bg-white border border-stone-200 rounded-2xl p-5 space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-amber-600">EQUIPMENT</span>
+                              <h4 className="font-bold text-stone-900">{inq.machineName}</h4>
+                              <p className="text-xs text-stone-500">Category: {inq.category}</p>
+                            </div>
+                            <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase ${
+                              inq.status === 'New' ? 'bg-amber-100 text-amber-800' :
+                              inq.status === 'Quoted' ? 'bg-emerald-100 text-emerald-800' :
+                              'bg-stone-100 text-stone-800'
+                            }`}>{inq.status}</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-xs bg-stone-50 p-3 rounded-xl border border-stone-100">
+                            <div><strong>Location:</strong> {inq.location}</div>
+                            <div><strong>Capacity:</strong> {inq.dailyCapacity}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
             </>
           )}
