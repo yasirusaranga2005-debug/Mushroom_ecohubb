@@ -80,6 +80,57 @@ function LiveClock({ language }: { language: 'EN' | 'SI' }) {
   );
 }
 
+function SimpleBarChart({ data, title, color = 'emerald' }: { data: { label: string, value: number }[], title: string, color?: string }) {
+  const maxVal = Math.max(...data.map(d => d.value), 1);
+  return (
+    <div className="bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm">
+      <h4 className="font-bold text-stone-900 text-sm mb-4">{title}</h4>
+      <div className="flex items-end gap-3 h-32">
+        {data.map((item, i) => {
+          const heightPct = (item.value / maxVal) * 100;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
+              <div className="w-full relative flex-1 flex items-end rounded-t-md overflow-hidden bg-stone-50">
+                <div 
+                  className={`w-full bg-${color}-500 transition-all duration-700 ease-out group-hover:bg-${color}-400 rounded-t-sm`}
+                  style={{ height: `${heightPct}%` }}
+                ></div>
+                <span className="absolute bottom-1 w-full text-center text-[10px] font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  {item.value}
+                </span>
+              </div>
+              <span className="text-[9px] font-bold text-stone-400 uppercase tracking-tighter truncate w-full text-center">{item.label}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ProgressRing({ value, max, label, color = 'emerald' }: { value: number, max: number, label: string, color?: string }) {
+  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+  return (
+    <div className="bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center gap-3">
+      <div className="relative flex items-center justify-center h-20 w-20">
+        <svg className="w-full h-full transform -rotate-90">
+          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-stone-100" />
+          <circle cx="40" cy="40" r="36" stroke="currentColor" strokeWidth="8" fill="transparent"
+            strokeDasharray={2 * Math.PI * 36}
+            strokeDashoffset={2 * Math.PI * 36 * (1 - percentage / 100)}
+            className={`text-${color}-500 transition-all duration-1000 ease-out`}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute flex flex-col items-center justify-center">
+          <span className="text-sm font-extrabold text-stone-800">{Math.round(percentage)}%</span>
+        </div>
+      </div>
+      <h4 className="font-bold text-stone-500 text-[10px] uppercase tracking-wider text-center">{label}</h4>
+    </div>
+  );
+}
+
 export default function Dashboard({
   language,
   currentUser,
@@ -448,6 +499,24 @@ export default function Dashboard({
           message: parseServiceError(err)
         });
       }
+    }
+  };
+
+  const handleQuickStockUpdate = async (prod: Product) => {
+    try {
+      const newStatus = prod.status === 'Available' ? 'Out of Stock' : 'Available';
+      await dataService.updateProduct(prod.id, { status: newStatus });
+      setFeedback({
+        type: 'success',
+        message: language === 'EN' ? `Stock status updated to ${newStatus}.` : `තොග තත්ත්වය යාවත්කාලීන කරන ලදී.`
+      });
+      refreshAllData();
+    } catch (err: any) {
+      console.error(err);
+      setFeedback({
+        type: 'error',
+        message: parseServiceError(err)
+      });
     }
   };
 
@@ -1305,6 +1374,85 @@ export default function Dashboard({
                     </div>
                   </div>
 
+                  {/* Role-Specific Analytical Charts */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {currentUser.role === 'grower' && (
+                      <>
+                        <SimpleBarChart 
+                          title={language === 'EN' ? 'Weekly Harvest Trend (kg)' : 'සතිපතා අස්වැන්න (kg)'}
+                          data={[
+                            { label: 'Mon', value: 12 }, { label: 'Tue', value: 15 }, { label: 'Wed', value: 8 },
+                            { label: 'Thu', value: 20 }, { label: 'Fri', value: 18 }, { label: 'Sat', value: 25 }, { label: 'Sun', value: 22 }
+                          ]} 
+                        />
+                        <div className="flex flex-col h-full">
+                           <div className="flex-1 bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center">
+                             <h4 className="font-bold text-stone-900 text-sm mb-4 w-full text-left">{language === 'EN' ? 'Monthly Target' : 'මාසික ඉලක්කය'}</h4>
+                             <ProgressRing value={85} max={100} label="Completed" color="emerald" />
+                           </div>
+                        </div>
+                      </>
+                    )}
+                    {(currentUser.role === 'admin' || currentUser.role === 'staff') && (
+                      <>
+                        <SimpleBarChart 
+                          title={language === 'EN' ? 'Platform Registrations' : 'ලියාපදිංචි කිරීම්'}
+                          color="indigo"
+                          data={[
+                            { label: 'Jan', value: 45 }, { label: 'Feb', value: 52 }, { label: 'Mar', value: 38 },
+                            { label: 'Apr', value: 65 }, { label: 'May', value: 88 }, { label: 'Jun', value: 102 }
+                          ]} 
+                        />
+                        <div className="flex flex-col h-full">
+                           <div className="flex-1 bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center">
+                             <h4 className="font-bold text-stone-900 text-sm mb-4 w-full text-left">{language === 'EN' ? 'Network Capacity' : 'පද්ධති ධාරිතාව'}</h4>
+                             <ProgressRing value={approvedMembers} max={500} label="Members" color="indigo" />
+                           </div>
+                        </div>
+                      </>
+                    )}
+                    {currentUser.role === 'buyer' && (
+                      <>
+                        <SimpleBarChart 
+                          title={language === 'EN' ? 'Monthly Procurement' : 'මාසික මිලදී ගැනීම්'}
+                          color="cyan"
+                          data={[
+                            { label: 'Wk 1', value: 5 }, { label: 'Wk 2', value: 12 }, 
+                            { label: 'Wk 3', value: 8 }, { label: 'Wk 4', value: 15 }
+                          ]} 
+                        />
+                        <div className="flex flex-col h-full">
+                           <div className="flex-1 bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center">
+                             <h4 className="font-bold text-stone-900 text-sm mb-4 w-full text-left">{language === 'EN' ? 'Conversion Rate' : 'සාර්ථකත්ව ප්‍රතිශතය'}</h4>
+                             <ProgressRing 
+                               value={inquiries.filter(i => i.buyerId === currentUser.uid && i.status === 'Converted').length} 
+                               max={Math.max(10, inquiries.filter(i => i.buyerId === currentUser.uid).length)} 
+                               label="Successful Orders" color="cyan" 
+                             />
+                           </div>
+                        </div>
+                      </>
+                    )}
+                    {(currentUser.role === 'trainer' || currentUser.role === 'partner') && (
+                      <>
+                        <SimpleBarChart 
+                          title={language === 'EN' ? 'Engagement Trend' : 'නියැලීමේ ප්‍රවණතාව'}
+                          color="amber"
+                          data={[
+                            { label: 'Q1', value: 20 }, { label: 'Q2', value: 45 }, 
+                            { label: 'Q3', value: 30 }, { label: 'Q4', value: 60 }
+                          ]} 
+                        />
+                        <div className="flex flex-col h-full">
+                           <div className="flex-1 bg-white border border-stone-200 p-5 rounded-[24px] shadow-sm flex flex-col items-center justify-center">
+                             <h4 className="font-bold text-stone-900 text-sm mb-4 w-full text-left">{language === 'EN' ? 'Response Rate' : 'ප්‍රතිචාර දැක්වීම'}</h4>
+                             <ProgressRing value={75} max={100} label="Responded" color="amber" />
+                           </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
                   {/* Notices and Board Sections */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Role Specific Alerts / Summaries */}
@@ -1909,7 +2057,17 @@ export default function Dashboard({
                             <h4 className="font-bold text-stone-900 text-sm truncate">{prod.name}</h4>
                             <p className="text-stone-500 text-xs truncate">Price: {prod.priceRange}</p>
                             <p className="text-[10px] text-stone-400">Supplier: {prod.supplierName}</p>
-                            <div className="flex justify-end gap-2 pt-2">
+                            <div className="flex justify-end gap-2 pt-2 items-center">
+                              <button
+                                onClick={() => handleQuickStockUpdate(prod)}
+                                className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors ${
+                                  prod.status === 'Available'
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                                    : 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100'
+                                }`}
+                              >
+                                {prod.status === 'Available' ? (language === 'EN' ? 'Mark Out of Stock' : 'තොග අවසන්') : (language === 'EN' ? 'Mark Available' : 'තොග ඇත')}
+                              </button>
                               <button
                                 onClick={() => handleEditProduct(prod)}
                                 className="p-1.5 text-stone-500 hover:text-[#8B4513] hover:bg-[#8B4513]/10 rounded"
