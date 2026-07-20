@@ -1347,46 +1347,46 @@ export default function Dashboard({
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {/* Temp card */}
-                      <div className="bg-stone-50 border border-stone-150 p-4 rounded-xl flex items-center space-x-3.5">
-                        <div className="p-2.5 bg-orange-100 text-orange-700 rounded-lg">
-                          <Thermometer className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <span className="block text-[10px] uppercase text-stone-400 font-bold tracking-wider">
-                            {language === 'EN' ? 'Temperature' : 'උෂ්ණත්වය'}
+                      <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl flex flex-col gap-1.5 shadow-sm">
+                        <div className="flex items-center space-x-2">
+                          <div className="p-1.5 bg-orange-100 text-orange-700 rounded-md shrink-0">
+                            <Thermometer className="h-4 w-4" />
+                          </div>
+                          <span className="text-[9px] uppercase text-stone-500 font-bold tracking-wider truncate">
+                            {language === 'EN' ? 'Temp' : 'උෂ්ණත්වය'}
                           </span>
-                          <span className="text-base font-bold text-stone-800">28.4 °C</span>
                         </div>
+                        <span className="text-lg font-extrabold text-stone-800">28.4 °C</span>
                       </div>
 
                       {/* Humidity card */}
-                      <div className="bg-stone-50 border border-stone-150 p-4 rounded-xl flex items-center space-x-3.5">
-                        <div className="p-2.5 bg-blue-100 text-blue-700 rounded-lg">
-                          <Droplets className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <span className="block text-[10px] uppercase text-stone-400 font-bold tracking-wider">
+                      <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl flex flex-col gap-1.5 shadow-sm">
+                        <div className="flex items-center space-x-2">
+                          <div className="p-1.5 bg-blue-100 text-blue-700 rounded-md shrink-0">
+                            <Droplets className="h-4 w-4" />
+                          </div>
+                          <span className="text-[9px] uppercase text-stone-500 font-bold tracking-wider truncate">
                             {language === 'EN' ? 'Humidity' : 'ආර්ද්‍රතාවය'}
                           </span>
-                          <span className="text-base font-bold text-stone-800">82 % R.H.</span>
                         </div>
+                        <span className="text-lg font-extrabold text-stone-800">82%</span>
                       </div>
 
                       {/* Weather Status card */}
-                      <div className="bg-stone-50 border border-stone-150 p-4 rounded-xl flex items-center space-x-3.5">
-                        <div className="p-2.5 bg-amber-100 text-amber-700 rounded-lg">
-                          <Sun className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <span className="block text-[10px] uppercase text-stone-400 font-bold tracking-wider">
-                            {language === 'EN' ? 'Sky Condition' : 'කාලගුණය'}
-                          </span>
-                          <span className="text-base font-bold text-stone-800">
-                            {language === 'EN' ? 'Partly Cloudy' : 'මඳක් වළාකුළු සහිත'}
+                      <div className="bg-stone-50 border border-stone-200 p-3.5 rounded-xl flex flex-col gap-1.5 shadow-sm col-span-2 md:col-span-1">
+                        <div className="flex items-center space-x-2">
+                          <div className="p-1.5 bg-amber-100 text-amber-700 rounded-md shrink-0">
+                            <Sun className="h-4 w-4" />
+                          </div>
+                          <span className="text-[9px] uppercase text-stone-500 font-bold tracking-wider truncate">
+                            {language === 'EN' ? 'Condition' : 'කාලගුණය'}
                           </span>
                         </div>
+                        <span className="text-sm font-extrabold text-stone-800 line-clamp-1">
+                          {language === 'EN' ? 'Partly Cloudy' : 'වළාකුළු සහිත'}
+                        </span>
                       </div>
                     </div>
 
