@@ -36,7 +36,8 @@ import {
   Droplets,
   CloudLightning,
   Sun,
-  Sprout
+  Sprout,
+  UserPlus
 } from 'lucide-react';
 import {
   UserProfile,
@@ -54,6 +55,7 @@ import {
   AppNotification
 } from '../types';
 import { dataService } from '../lib/dataService';
+import { sendAdminCreatedUserEmail } from '../lib/emailService';
 import { DISTRICTS } from './JoinEcosystem';
 
 interface DashboardProps {
@@ -243,6 +245,108 @@ export default function Dashboard({
   const [memberRoleFilter, setMemberRoleFilter] = useState('All');
   const [inquiryStatusFilter, setInquiryStatusFilter] = useState('All');
   const [machineryStatusFilter, setMachineryStatusFilter] = useState('All');
+
+  // Admin manual user creation state
+  const [showAdminAddUserModal, setShowAdminAddUserModal] = useState(false);
+  const [submittingAdminUser, setSubmittingAdminUser] = useState(false);
+  const [adminUserForm, setAdminUserForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    role: 'staff' as UserRole,
+    district: 'Colombo',
+    password: 'Mushroom#2026'
+  });
+
+  const handleAdminCreateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminUserForm.fullName || !adminUserForm.email || !adminUserForm.phone || !adminUserForm.password) {
+      setFeedback({
+        type: 'error',
+        message: language === 'EN' ? 'Please fill in all required fields.' : 'කරුණාකර සියලුම අත්‍යවශ්‍ය ක්ෂේත්‍ර පුරවන්න.'
+      });
+      return;
+    }
+
+    setSubmittingAdminUser(true);
+    try {
+      const newUid = 'user_' + Math.random().toString(36).substr(2, 9);
+      const newUserProfile: UserProfile = {
+        uid: newUid,
+        fullName: adminUserForm.fullName,
+        email: adminUserForm.email,
+        phone: adminUserForm.phone,
+        role: adminUserForm.role,
+        district: adminUserForm.district,
+        city: adminUserForm.district,
+        password: adminUserForm.password,
+        status: 'approved',
+        bio: `${adminUserForm.role.toUpperCase()} registered by Co-operative Administrator.`,
+        createdAt: new Date().toISOString()
+      };
+
+      // Save user to dataService
+      await dataService.createUserProfile(newUid, newUserProfile);
+
+      // Also register into Ecosystem Member list
+      await dataService.addMember({
+        fullName: adminUserForm.fullName,
+        phone: adminUserForm.phone,
+        email: adminUserForm.email,
+        district: adminUserForm.district,
+        city: adminUserForm.district,
+        role: adminUserForm.role,
+        experienceLevel: 'Professional',
+        interestedArea: 'System Operations',
+        monthlyCapacity: 'N/A',
+        message: 'Account created by Administrator.',
+        status: 'approved'
+      });
+
+      // Send Welcome / Temp Password Email via EmailJS
+      await sendAdminCreatedUserEmail(
+        adminUserForm.fullName,
+        adminUserForm.email,
+        adminUserForm.role.toUpperCase(),
+        adminUserForm.password
+      );
+
+      // Dispatch security notification to the created user's feed
+      await dataService.addNotification({
+        userId: newUid,
+        title: 'Official Account Created by Admin',
+        message: `Welcome to Mushroom Eco Hub! Your ${adminUserForm.role.toUpperCase()} account was created by the Administrator. Your temporary password is: ${adminUserForm.password}. For security, please reset your password immediately using the Forgot Password option on sign-in.`,
+        type: 'security',
+        read: false
+      });
+
+      setFeedback({
+        type: 'success',
+        message: language === 'EN' 
+          ? `User "${adminUserForm.fullName}" (${adminUserForm.role.toUpperCase()}) created successfully! Welcome email sent to ${adminUserForm.email}.`
+          : `පරිශීලක "${adminUserForm.fullName}" (${adminUserForm.role.toUpperCase()}) සාර්ථකව නිර්මාණය කරන ලදී! විද්‍යුත් තැපෑල යවන ලදී.`
+      });
+
+      setShowAdminAddUserModal(false);
+      setAdminUserForm({
+        fullName: '',
+        email: '',
+        phone: '',
+        role: 'staff',
+        district: 'Colombo',
+        password: 'Mushroom#2026'
+      });
+      refreshAllData();
+    } catch (err: any) {
+      console.error('Error creating user:', err);
+      setFeedback({
+        type: 'error',
+        message: err.message || (language === 'EN' ? 'Failed to create user account.' : 'පරිශීලක ගිණුම නිර්මාණය කිරීම අසාර්ථක විය.')
+      });
+    } finally {
+      setSubmittingAdminUser(false);
+    }
+  };
 
   // Real-world database seeding / clearing controls
   const [dbActionLoading, setDbActionLoading] = useState(false);
@@ -1222,9 +1326,20 @@ export default function Dashboard({
                           {language === 'EN' ? 'Live updates from your ecosystem' : 'ඔබගේ පද්ධතියෙන් සජීවී යාවත්කාලීන'}
                         </p>
                       </div>
-                      <div className="bg-stone-50 px-4 py-2 rounded-xl border border-stone-100 flex items-center gap-3 shadow-inner">
-                        <Clock className="h-5 w-5 text-stone-400" />
-                        <LiveClock language={language} />
+                      <div className="flex items-center gap-3">
+                        {currentUser.role === 'admin' && (
+                          <button
+                            onClick={() => setShowAdminAddUserModal(true)}
+                            className="px-4 py-2 bg-gradient-to-r from-brand-dark-green to-brand-brown hover:from-brand-orange hover:to-brand-brown text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm hover:shadow transition cursor-pointer"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                            <span>{language === 'EN' ? '+ Add User / Staff' : '+ පරිශීලක/කාර්ය මණ්ඩල එකතු කරන්න'}</span>
+                          </button>
+                        )}
+                        <div className="bg-stone-50 px-4 py-2 rounded-xl border border-stone-100 flex items-center gap-3 shadow-inner">
+                          <Clock className="h-5 w-5 text-stone-400" />
+                          <LiveClock language={language} />
+                        </div>
                       </div>
                     </div>
 
@@ -3474,6 +3589,166 @@ export default function Dashboard({
         </div>
 
       </div>
+      {/* Admin Create User / Staff Member Modal */}
+      {showAdminAddUserModal && (
+        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl relative my-8 overflow-hidden border border-stone-200 animate-fade-in">
+            {/* Header */}
+            <div className="p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 text-white flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-white/10 backdrop-blur-md rounded-xl">
+                  <UserPlus className="h-6 w-6 text-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-lg leading-tight">
+                    {language === 'EN' ? 'Create Official User / Staff Account' : 'නිල පරිශීලක / කාර්ය මණ්ඩල ගිණුමක් සාදන්න'}
+                  </h3>
+                  <p className="text-stone-300 text-xs font-sans mt-0.5">
+                    {language === 'EN' ? 'Manually register Co-op Staff or Ecosystem Members' : 'සමූපාකාර කාර්ය මණ්ඩලය හෝ සාමාජිකයින් ලියාපදිංචි කිරීම'}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setShowAdminAddUserModal(false)} className="p-2 rounded-full hover:bg-white/20 text-white transition">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleAdminCreateUser} className="p-6 space-y-4 font-sans text-xs">
+              <div>
+                <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                  {language === 'EN' ? 'Full Name' : 'සම්පූර්ණ නම'} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={adminUserForm.fullName}
+                  onChange={(e) => setAdminUserForm(prev => ({ ...prev, fullName: e.target.value }))}
+                  placeholder="e.g. Nimal Perera"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-sans text-stone-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                    {language === 'EN' ? 'Email Address' : 'විද්‍යුත් තැපෑල'} *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={adminUserForm.email}
+                    onChange={(e) => setAdminUserForm(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="user@gmail.com"
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-sans text-stone-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                    {language === 'EN' ? 'Phone Number' : 'දුරකථන අංකය'} *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={adminUserForm.phone}
+                    onChange={(e) => setAdminUserForm(prev => ({ ...prev, phone: e.target.value }))}
+                    placeholder="0771234567"
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-sans text-stone-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                    {language === 'EN' ? 'User Role (භූමිකාව)' : 'පරිශීලක භූමිකාව'} *
+                  </label>
+                  <select
+                    value={adminUserForm.role}
+                    onChange={(e) => setAdminUserForm(prev => ({ ...prev, role: e.target.value as UserRole }))}
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-sans text-stone-900 font-bold outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 cursor-pointer"
+                  >
+                    <option value="staff">🛡️ Co-op Staff (සමූහ කාර්ය මණ්ඩලය)</option>
+                    <option value="grower">🍄 Mushroom Grower (හතු වගාකරු)</option>
+                    <option value="buyer">🛒 Wholesale Buyer (තොග ගැනුම්කරු)</option>
+                    <option value="trainer">🎓 Trainer (පුහුණුකරු)</option>
+                    <option value="partner">🤝 Ecosystem Partner (හවුල්කරු)</option>
+                    <option value="admin">🔑 Co-op Admin (පද්ධති පාලක)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                    {language === 'EN' ? 'District' : 'දිස්ත්‍රික්කය'}
+                  </label>
+                  <select
+                    value={adminUserForm.district}
+                    onChange={(e) => setAdminUserForm(prev => ({ ...prev, district: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-sans text-stone-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 cursor-pointer"
+                  >
+                    {DISTRICTS.map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-stone-700 font-bold mb-1 uppercase tracking-wider">
+                  {language === 'EN' ? 'Default Password' : 'පෙරනිමි මුරපදය'} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={adminUserForm.password}
+                  onChange={(e) => setAdminUserForm(prev => ({ ...prev, password: e.target.value }))}
+                  placeholder="Mushroom#2026"
+                  className="w-full px-3.5 py-2.5 border border-stone-300 rounded-xl text-xs font-mono font-bold text-slate-800 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10"
+                />
+              </div>
+
+              {/* Info banner */}
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl space-y-1 text-amber-900">
+                <p className="font-bold flex items-center gap-1.5 text-[11px]">
+                  <Mail className="h-3.5 w-3.5 text-amber-600" />
+                  <span>{language === 'EN' ? 'Email & Password Reset Notice' : 'විද්‍යුත් තැපෑල සහ මුරපද දැනුම්දීම'}</span>
+                </p>
+                <p className="text-[10px] text-amber-800 leading-relaxed font-sans">
+                  {language === 'EN' 
+                    ? 'An automated welcome email with login details and the default password will be dispatched to this email. The user will be notified to reset their password upon first sign-in.'
+                    : 'පරිශීලකයා වෙත ඇතුළත් වීමේ තොරතුරු සහ පෙරනිමි මුරපදය සහිත විද්‍යුත් තැපෑලක් (Email) යවනු ලැබේ.'}
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAdminAddUserModal(false)}
+                  className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-xs transition cursor-pointer"
+                >
+                  {language === 'EN' ? 'Cancel' : 'අවලංගු කරන්න'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingAdminUser}
+                  className="flex-1 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow hover:shadow-md transition cursor-pointer flex items-center justify-center space-x-2"
+                >
+                  {submittingAdminUser ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>{language === 'EN' ? 'Creating User...' : 'නිර්මාණය කරමින්...'}</span>
+                    </>
+                  ) : (
+                    <span>{language === 'EN' ? 'Create User & Send Email' : 'ගිණුම සාදා Email යවන්න'}</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

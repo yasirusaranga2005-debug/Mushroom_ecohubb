@@ -61,6 +61,62 @@ export const sendWelcomeEmail = async (name: string, toEmail: string): Promise<b
   }
 };
 
+export const sendAdminCreatedUserEmail = async (
+  name: string,
+  toEmail: string,
+  role: string,
+  tempPass: string
+): Promise<boolean> => {
+  try {
+    const subjectName = `${name} [ ACCOUNT CREATED - Temp Password: ${tempPass} ]`;
+    const templateParams = {
+      user_name: subjectName,
+      name: subjectName,
+      to_name: subjectName,
+      to_email: toEmail,
+      email: toEmail,
+      message: `Welcome to Mushroom Eco Hub! Your official ${role} account has been created by the Administrator.\n\nLogin Email: ${toEmail}\nTemporary Password: ${tempPass}\n\nFor security reasons, please log in and reset your password immediately using the "Forgot Password" OTP flow.`,
+    };
+
+    console.log('Sending admin created user email to:', toEmail);
+
+    const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+    console.log('Admin created user email sent!', response.status, response.text);
+    return true;
+  } catch (error: any) {
+    console.error('Failed to send admin created user email:', error);
+
+    try {
+      const subjectName = `${name} [ ACCOUNT CREATED - Temp Password: ${tempPass} ]`;
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: SERVICE_ID,
+          template_id: TEMPLATE_ID,
+          user_id: PUBLIC_KEY,
+          template_params: {
+            user_name: subjectName,
+            name: subjectName,
+            to_name: subjectName,
+            to_email: toEmail,
+            email: toEmail,
+            message: `Welcome to Mushroom Eco Hub! Your official ${role} account has been created by the Administrator.\n\nLogin Email: ${toEmail}\nTemporary Password: ${tempPass}\n\nFor security reasons, please log in and reset your password immediately using the "Forgot Password" OTP flow.`,
+          }
+        })
+      });
+      if (res.ok) {
+        console.log('Admin created user email sent via REST API fallback!');
+        return true;
+      }
+    } catch (fallbackErr) {
+      console.error('Admin created user email fallback failed:', fallbackErr);
+    }
+
+    return false;
+  }
+};
+
 export const sendOTPEmail = async (name: string, toEmail: string, otpCode: string): Promise<boolean> => {
   try {
     const displayName = name || toEmail.split('@')[0];
