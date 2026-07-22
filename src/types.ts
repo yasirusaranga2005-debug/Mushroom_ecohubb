@@ -147,6 +147,27 @@ export interface MachineryInquiry {
   createdAt: string;
 }
 
+export interface MachineItem {
+  id: string;
+  category?: 'powders' | 'culinary' | 'snacks';
+  nameEN: string;
+  nameSI: string;
+  descriptionEN: string;
+  descriptionSI: string;
+  featuresEN: string[];
+  featuresSI: string[];
+  specs: {
+    capacity: string;
+    power: string;
+    material: string;
+    weight: string;
+  };
+  priceRange: string;
+  imageUrl: string;
+  tags: string[];
+  createdAt?: string;
+}
+
 export interface AppNotification {
   id: string;
   userId: string; // 'public' or specific user's uid

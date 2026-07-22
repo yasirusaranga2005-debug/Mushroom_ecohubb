@@ -56,6 +56,11 @@ export default function Footer({ language, setCurrentTab }: FooterProps) {
                 </button>
               </li>
               <li>
+                <button onClick={() => setCurrentTab('guide')} className="text-[#F5F5F0]/70 hover:text-[#8B4513] text-left transition font-semibold text-brand-orange">
+                  {language === 'EN' ? '📖 User Manual & Guide' : '📖 පරිශීලක මාර්ගෝපදේශය'}
+                </button>
+              </li>
+              <li>
                 <button onClick={() => setCurrentTab('about')} className="text-[#F5F5F0]/70 hover:text-[#8B4513] text-left transition">
                   {language === 'EN' ? 'Our Mission' : 'අපගේ අරමුණ'}
                 </button>

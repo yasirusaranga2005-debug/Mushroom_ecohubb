@@ -792,6 +792,7 @@ export default function App() {
                 language={language}
                 currentUserEmail={currentUser?.email}
                 currentUserId={currentUser?.uid}
+                currentUserRole={currentUser?.role}
               />
             )}
 

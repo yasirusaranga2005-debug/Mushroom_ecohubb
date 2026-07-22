@@ -139,6 +139,7 @@ import {
   Announcement,
   UserRole,
   MachineryInquiry,
+  MachineItem,
   AppNotification,
   SecurityAuditLog
 } from '../types';
@@ -158,6 +159,117 @@ const SEED_CONTACT_MESSAGES: ContactMessage[] = [];
 const SEED_ANNOUNCEMENTS: Announcement[] = [];
 const SEED_BUYER_INQUIRIES: BuyerInquiry[] = [];
 const SEED_MACHINERY_INQUIRIES: MachineryInquiry[] = [];
+const SEED_MACHINERY_ITEMS: MachineItem[] = [
+  {
+    id: 'mac-pow-1',
+    category: 'powders',
+    nameEN: 'Commercial Air Washer / Bubble Washing Machine',
+    nameSI: 'වාණිජ වායු සහ බුබුලු සේදුම් යන්ත්‍රය',
+    descriptionEN: 'Cleans fresh whole mushrooms thoroughly to remove residual substrate dust, peat moss, and organic particles before dehydrating.',
+    descriptionSI: 'හතු වියළීමට පෙර ඒවායේ ඇති උපස්තර දූවිලි සහ අනෙකුත් අපද්‍රව්‍ය පීඩන බුබුලු මඟින් සම්පූර්ණයෙන්ම පිරිසිදු කරන සේදුම් යන්ත්‍රය.',
+    featuresEN: [
+      'High-pressure water bubbling simulates manual washing to protect delicate mushroom caps.',
+      'Continuous conveyor belt for streamlined automatic discharging.',
+      'Water recycling filtration system to minimize eco-footprint.'
+    ],
+    featuresSI: [
+      'හතු තොප්පියට හානි නොවන සේ පීඩන ජල බුබුලු මඟින් පිරිසිදු කිරීම.',
+      'ස්වයංක්‍රීයව සෝදා ඉවත් කිරීම සඳහා අඛණ්ඩ වාහක පටිය (Conveyor belt).',
+      'ජල පරිභෝජනය අවම කරන ප්‍රතිචක්‍රීකරණ පෙරහන පද්ධතිය.'
+    ],
+    specs: {
+      capacity: '300 - 500 kg/hr',
+      power: '2.2 kW, 380V Three-Phase',
+      material: 'Food-Grade SUS304 Stainless Steel',
+      weight: '280 kg'
+    },
+    priceRange: 'LKR 850,000 - 1,200,000',
+    imageUrl: 'https://images.unsplash.com/photo-1540324155974-72223a979e29?auto=format&fit=crop&q=80&w=500',
+    tags: ['Washing', 'Prep-stage', 'Powders']
+  },
+  {
+    id: 'mac-pow-2',
+    category: 'powders',
+    nameEN: 'Industrial Dehydrator / Multi-Tier Mesh Belt Dryer',
+    nameSI: 'කාර්මික වියළන යන්ත්‍රය / බහු-තට්ටු වාහක වියළනය',
+    descriptionEN: 'Utilizes precision-controlled forced hot air or vacuum drying to strip moisture uniformly while fully preserving active polysaccharides and nutritional value.',
+    descriptionSI: 'හතු වල ඇති පෝෂණ කොටස් සහ ඖෂධීය ගුණය සුරකිමින්, නියමිත උෂ්ණත්වයකින් යුතුව ඒකාකාරව ජලය ඉවත් කරන වාහක වියළනය.',
+    featuresEN: [
+      'Multi-tier design for massive volume handling within a compact workspace.',
+      'Smart PID microprocessor temperature controller (30°C to 120°C).',
+      'Uniform horizontal airflow avoids hotspot scorching.'
+    ],
+    featuresSI: [
+      'ඉඩකඩ ඉතිරි කරමින් විශාල ධාරිතාවක් වියළීමට බහු-තට්ටු සැලසුම.',
+      'නියමිත උෂ්ණත්වය පාලනය කරන ස්මාර්ට් PID පද්ධතිය (30°C සිට 120°C).',
+      'හතු පිළිස්සීමෙන් තොරව ඒකාකාරව උණුසුම් වායුව ගමන් කරවීම.'
+    ],
+    specs: {
+      capacity: '100 - 200 kg per batch',
+      power: '15 kW (Electric heating with fan system)',
+      material: 'SUS304 Stainless Steel interior & exterior',
+      weight: '650 kg'
+    },
+    priceRange: 'LKR 1,800,000 - 2,500,000',
+    imageUrl: 'https://images.unsplash.com/photo-1555529771-835e59fc5efe?auto=format&fit=crop&q=80&w=500',
+    tags: ['Drying', 'Brightsail', 'Powders']
+  },
+  {
+    id: 'mac-cul-1',
+    category: 'culinary',
+    nameEN: 'Industrial Mushroom Slicing & Dicing Machine',
+    nameSI: 'කාර්මික හතු පෙති කපන යන්ත්‍රය',
+    descriptionEN: 'Precision rotary slicer engineered specifically for soft mushroom caps and stems to deliver uniform thickness for canning or drying.',
+    descriptionSI: 'ටින් කිරීමට හෝ වියළීමට පෙර හතු තොප්පි සහ නැටි ඒකාකාර ඝනකමකින් යුතුව කැපීමට නිපදවා ඇති ස්වයංක්‍රීය යන්ත්‍රය.',
+    featuresEN: [
+      'High-speed rotating disc with razor-sharp medical grade stainless blades.',
+      'Adjustable slicing thickness range from 2mm to 10mm.',
+      'Protective hopper feed prevents hand contact with cutting zone.'
+    ],
+    featuresSI: [
+      'අධිවේගී කැපුම් තල මඟින් ඉතා නිවැරදිව හතු පෙති කැපීම.',
+      'මිලිමීටර් 2 සිට 10 දක්වා ඝනකම වෙනස් කිරීමේ පහසුකම.',
+      'ආරක්ෂිත පෝෂක කොටස මඟින් හතු කැපීමේදී අනතුරු සිදු වීම වළක්වයි.'
+    ],
+    specs: {
+      capacity: '200 - 400 kg/hr',
+      power: '1.5 kW, 220V Single-Phase',
+      material: 'SUS304 Stainless Steel body',
+      weight: '160 kg'
+    },
+    priceRange: 'LKR 550,000 - 750,000',
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=500',
+    tags: ['Slicing', 'Culinary', 'Prep']
+  },
+  {
+    id: 'mac-snk-1',
+    category: 'snacks',
+    nameEN: 'Vacuum Frying System (Low-Temp VF Fryer)',
+    nameSI: 'රික්ත බැදීමේ යන්ත්‍ර පද්ධතිය (Vacuum Frying)',
+    descriptionEN: 'Fries fresh mushroom slices under negative vacuum pressure below 90°C. Reduces oil retention by 70% while preserving vivid colors and natural aromas.',
+    descriptionSI: 'අඩු උෂ්ණත්වයක් සහ රික්ත පීඩනයක් යටතේ තෙල් රහිතව හැපෙනසුළු හතු චිප්ස් නිෂ්පාදනය කරන උසස් තාක්ෂණික යන්ත්‍රය.',
+    featuresEN: [
+      'De-oiling centrifugal spin cycle inside vacuum chamber eliminates greasy feel.',
+      'Fully automated PLC recipe control with touch panel.',
+      'Integrated oil filtration and storage reservoir.'
+    ],
+    featuresSI: [
+      'තෙල් ගතිය ඉවත් කරන ස්වයංක්‍රීය කැරකෙන චූෂණ පද්ධතිය.',
+      'ස්පර්ශ තිරය මඟින් ක්‍රියාත්මක වන PLC පාලන පද්ධතිය.',
+      'ඒකාබද්ධ තෙල් පෙරහන සහ ගබඩා ටැංකිය.'
+    ],
+    specs: {
+      capacity: '50 - 100 kg/batch',
+      power: '22 kW, 380V Three-Phase',
+      material: 'Food-grade SUS304 Sanitary Steel',
+      weight: '1,200 kg'
+    },
+    priceRange: 'LKR 6,500,000 - 9,500,000',
+    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&q=80&w=500',
+    tags: ['Snacks', 'Vacuum Frying', 'Chips']
+  }
+];
+
 const SEED_NOTIFICATIONS: AppNotification[] = [];
 const SEED_SECURITY_LOGS: SecurityAuditLog[] = [];
 
@@ -166,6 +278,7 @@ const LS_PRODUCTS = 'mush_products_v2';
 const LS_MEMBERS = 'mush_members_v2';
 const LS_INQUIRIES = 'mush_inquiries_v2';
 const LS_MACHINERY_INQUIRIES = 'mush_machinery_inquiries_v2';
+const LS_MACHINERY_ITEMS = 'mush_machinery_items_v2';
 const LS_TRAINING_REQS = 'mush_training_requests_v2';
 const LS_TRAINING_PROGS = 'mush_training_programs_v2';
 const LS_OPPORTUNITIES = 'mush_opportunities_v2';
@@ -832,6 +945,75 @@ export const dataService = {
     const local = loadStorageData<MachineryInquiry>(LS_MACHINERY_INQUIRIES, SEED_MACHINERY_INQUIRIES);
     const updated = local.map((i) => (i.id === id ? { ...i, status } : i));
     saveStorageData(LS_MACHINERY_INQUIRIES, updated);
+  },
+
+  // --------------------------------------------------------------------------
+  // DYNAMIC MACHINERY CATALOG ITEMS (ADMIN & STAFF MANAGED)
+  // --------------------------------------------------------------------------
+  async getMachineryItems(): Promise<MachineItem[]> {
+    if (isFirebaseAvailable) {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'machinery_items'));
+        const list: MachineItem[] = [];
+        querySnapshot.forEach((docSnap) => {
+          list.push({ id: docSnap.id, ...docSnap.data() } as MachineItem);
+        });
+        if (list.length > 0) {
+          return list;
+        }
+      } catch (e) {
+        console.warn('Firebase getMachineryItems error, using local fallback:', e);
+      }
+    }
+    return loadStorageData<MachineItem>(LS_MACHINERY_ITEMS, SEED_MACHINERY_ITEMS);
+  },
+
+  async addMachineryItem(item: Omit<MachineItem, 'id' | 'createdAt'>): Promise<MachineItem> {
+    const newItem: MachineItem = {
+      ...item,
+      id: 'mac_' + Math.random().toString(36).substr(2, 9),
+      createdAt: new Date().toISOString()
+    };
+
+    if (isFirebaseAvailable && auth?.currentUser) {
+      try {
+        const docRef = await addDoc(collection(db, 'machinery_items'), newItem);
+        newItem.id = docRef.id;
+      } catch (e) {
+        console.warn('Firebase addMachineryItem error, using local storage:', e);
+      }
+    }
+
+    const local = loadStorageData<MachineItem>(LS_MACHINERY_ITEMS, SEED_MACHINERY_ITEMS);
+    saveStorageData(LS_MACHINERY_ITEMS, [newItem, ...local]);
+    return newItem;
+  },
+
+  async updateMachineryItem(id: string, updates: Partial<MachineItem>): Promise<MachineItem> {
+    if (isFirebaseAvailable && auth?.currentUser) {
+      try {
+        await updateDoc(doc(db, 'machinery_items', id), updates);
+      } catch (e) {
+        console.warn('Firebase updateMachineryItem error, using local storage:', e);
+      }
+    }
+    const local = loadStorageData<MachineItem>(LS_MACHINERY_ITEMS, SEED_MACHINERY_ITEMS);
+    const updated = local.map((m) => (m.id === id ? { ...m, ...updates } : m));
+    saveStorageData(LS_MACHINERY_ITEMS, updated);
+    return updated.find((m) => m.id === id) || ({ id, ...updates } as MachineItem);
+  },
+
+  async deleteMachineryItem(id: string): Promise<void> {
+    if (isFirebaseAvailable && auth?.currentUser) {
+      try {
+        await deleteDoc(doc(db, 'machinery_items', id));
+      } catch (e) {
+        console.warn('Firebase deleteMachineryItem error, using local storage:', e);
+      }
+    }
+    const local = loadStorageData<MachineItem>(LS_MACHINERY_ITEMS, SEED_MACHINERY_ITEMS);
+    const filtered = local.filter((m) => m.id !== id);
+    saveStorageData(LS_MACHINERY_ITEMS, filtered);
   },
 
   // --------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Settings, 
   Cpu, 
@@ -15,34 +15,22 @@ import {
   ChevronRight,
   DollarSign,
   MapPin,
-  X
+  X,
+  Plus,
+  Edit,
+  Trash2
 } from 'lucide-react';
 import { dataService } from '../lib/dataService';
+import { UserRole, MachineItem } from '../types';
 
 interface MachineryProps {
   language: 'EN' | 'SI';
   currentUserEmail?: string;
   currentUserId?: string;
+  currentUserRole?: UserRole;
 }
 
-interface MachineItem {
-  id: string;
-  nameEN: string;
-  nameSI: string;
-  descriptionEN: string;
-  descriptionSI: string;
-  featuresEN: string[];
-  featuresSI: string[];
-  specs: {
-    capacity: string;
-    power: string;
-    material: string;
-    weight: string;
-  };
-  priceRange: string;
-  imageUrl: string;
-  tags: string[];
-}
+
 
 const CATEGORY_INFO = {
   powders: {
@@ -571,10 +559,37 @@ const MACHINERY_DATA: Record<'powders' | 'culinary' | 'snacks', MachineItem[]> =
   ]
 };
 
-export default function Machinery({ language, currentUserEmail, currentUserId }: MachineryProps) {
+export default function Machinery({ language, currentUserEmail, currentUserId, currentUserRole }: MachineryProps) {
   const [activeCategory, setActiveCategory] = useState<'powders' | 'culinary' | 'snacks'>('powders');
   const [searchQuery, setSearchQuery] = useState('');
   
+  // Dynamic machinery items state
+  const [allMachines, setAllMachines] = useState<MachineItem[]>([]);
+  const [loadingMachines, setLoadingMachines] = useState(true);
+
+  // Admin & Staff management states
+  const canManage = currentUserRole === 'admin' || currentUserRole === 'staff';
+  const [showAddEditModal, setShowAddEditModal] = useState(false);
+  const [editingMachine, setEditingMachine] = useState<MachineItem | null>(null);
+  const [savingMachine, setSavingMachine] = useState(false);
+  
+  const [machineForm, setMachineForm] = useState({
+    nameEN: '',
+    nameSI: '',
+    category: 'powders' as 'powders' | 'culinary' | 'snacks',
+    descriptionEN: '',
+    descriptionSI: '',
+    capacity: '200 - 400 kg/hr',
+    power: '2.2 kW, 380V Three-Phase',
+    material: 'SUS304 Stainless Steel',
+    weight: '250 kg',
+    priceRange: 'LKR 850,000 - 1,200,000',
+    imageUrl: 'https://images.unsplash.com/photo-1540324155974-72223a979e29?auto=format&fit=crop&q=80&w=500',
+    tagsStr: 'Washing, Prep-stage',
+    featuresENStr: 'High-pressure water bubbling; Continuous conveyor belt; Water recycling filtration',
+    featuresSIStr: 'හතු තොප්පියට හානි නොවන සේ පිරිසිදු කිරීම; ස්වයංක්‍රීය වාහක පටිය; ප්‍රතිචක්‍රීකරණ පෙරහන'
+  });
+
   // Modal State
   const [selectedMachine, setSelectedMachine] = useState<MachineItem | null>(null);
   const [submittingInquiry, setSubmittingInquiry] = useState(false);
@@ -591,6 +606,108 @@ export default function Machinery({ language, currentUserEmail, currentUserId }:
     location: '',
     message: ''
   });
+
+  const loadMachineryData = async () => {
+    setLoadingMachines(true);
+    try {
+      const items = await dataService.getMachineryItems();
+      setAllMachines(items);
+    } catch (e) {
+      console.error('Failed loading machinery catalog:', e);
+    } finally {
+      setLoadingMachines(false);
+    }
+  };
+
+  useEffect(() => {
+    loadMachineryData();
+  }, []);
+
+  const handleOpenAddModal = () => {
+    setEditingMachine(null);
+    setMachineForm({
+      nameEN: '',
+      nameSI: '',
+      category: activeCategory,
+      descriptionEN: '',
+      descriptionSI: '',
+      capacity: '200 - 400 kg/hr',
+      power: '2.2 kW, 380V Three-Phase',
+      material: 'SUS304 Stainless Steel',
+      weight: '250 kg',
+      priceRange: 'LKR 850,000 - 1,200,000',
+      imageUrl: 'https://images.unsplash.com/photo-1540324155974-72223a979e29?auto=format&fit=crop&q=80&w=500',
+      tagsStr: 'Industrial, Processing',
+      featuresENStr: 'High efficiency; Food-grade stainless build; Easy maintenance',
+      featuresSIStr: 'ඉහළ කාර්යක්ෂමතාව; ආහාර සුදුසු ලෝහ නිෂ්පාදනය; පහසු නඩත්තුව'
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleOpenEditModal = (m: MachineItem) => {
+    setEditingMachine(m);
+    setMachineForm({
+      nameEN: m.nameEN,
+      nameSI: m.nameSI,
+      category: m.category,
+      descriptionEN: m.descriptionEN,
+      descriptionSI: m.descriptionSI,
+      capacity: m.specs?.capacity || '',
+      power: m.specs?.power || '',
+      material: m.specs?.material || '',
+      weight: m.specs?.weight || '',
+      priceRange: m.priceRange,
+      imageUrl: m.imageUrl,
+      tagsStr: (m.tags || []).join(', '),
+      featuresENStr: (m.featuresEN || []).join('; '),
+      featuresSIStr: (m.featuresSI || []).join('; ')
+    });
+    setShowAddEditModal(true);
+  };
+
+  const handleDeleteMachine = async (id: string) => {
+    if (!confirm(language === 'EN' ? 'Are you sure you want to delete this machinery item?' : 'මෙම යන්ත්‍රෝපකරණ විස්තරය ඉවත් කිරීමට ඔබට විශ්වාසද?')) return;
+    await dataService.deleteMachineryItem(id);
+    await loadMachineryData();
+  };
+
+  const handleSaveMachine = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!machineForm.nameEN || !machineForm.priceRange) return;
+    setSavingMachine(true);
+    try {
+      const itemPayload = {
+        category: machineForm.category,
+        nameEN: machineForm.nameEN,
+        nameSI: machineForm.nameSI || machineForm.nameEN,
+        descriptionEN: machineForm.descriptionEN,
+        descriptionSI: machineForm.descriptionSI || machineForm.descriptionEN,
+        featuresEN: machineForm.featuresENStr.split(';').map(s => s.trim()).filter(Boolean),
+        featuresSI: machineForm.featuresSIStr.split(';').map(s => s.trim()).filter(Boolean),
+        specs: {
+          capacity: machineForm.capacity,
+          power: machineForm.power,
+          material: machineForm.material,
+          weight: machineForm.weight
+        },
+        priceRange: machineForm.priceRange,
+        imageUrl: machineForm.imageUrl || 'https://images.unsplash.com/photo-1540324155974-72223a979e29?auto=format&fit=crop&q=80&w=500',
+        tags: machineForm.tagsStr.split(',').map(s => s.trim()).filter(Boolean)
+      };
+
+      if (editingMachine) {
+        await dataService.updateMachineryItem(editingMachine.id, itemPayload);
+      } else {
+        await dataService.addMachineryItem(itemPayload);
+      }
+      setShowAddEditModal(false);
+      await loadMachineryData();
+    } catch (err) {
+      console.error('Error saving machine:', err);
+    } finally {
+      setSavingMachine(false);
+    }
+  };
 
   const handleOpenInquiry = (machine: MachineItem) => {
     setSelectedMachine(machine);
@@ -645,14 +762,15 @@ export default function Machinery({ language, currentUserEmail, currentUserId }:
     }
   };
 
-  // Filter items based on search query
-  const filteredMachines = MACHINERY_DATA[activeCategory].filter(machine => {
+  // Filter items based on activeCategory and search query
+  const categoryMachines = allMachines.filter(m => m.category === activeCategory);
+  const filteredMachines = categoryMachines.filter(machine => {
     const query = searchQuery.toLowerCase();
     return (
       machine.nameEN.toLowerCase().includes(query) ||
-      machine.nameSI.includes(query) ||
+      (machine.nameSI && machine.nameSI.includes(query)) ||
       machine.descriptionEN.toLowerCase().includes(query) ||
-      machine.tags.some(t => t.toLowerCase().includes(query))
+      (machine.tags && machine.tags.some(t => t.toLowerCase().includes(query)))
     );
   });
 
@@ -745,8 +863,19 @@ export default function Machinery({ language, currentUserEmail, currentUserId }:
             className="w-full pl-10 pr-4 py-2 text-sm border border-[#5A5A40]/20 rounded-xl bg-stone-50 outline-none focus:bg-white focus:border-[#8B4513] transition"
           />
         </div>
-        <div className="text-stone-500 text-xs font-serif italic text-right shrink-0">
-          Showing {filteredMachines.length} of {MACHINERY_DATA[activeCategory].length} Machinery Blueprints
+        <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="text-stone-500 text-xs font-serif italic shrink-0">
+            Showing {filteredMachines.length} of {categoryMachines.length} Machinery Items
+          </div>
+          {canManage && (
+            <button
+              onClick={handleOpenAddModal}
+              className="px-3.5 py-2 bg-brand-dark-green hover:bg-brand-natural-green text-white font-serif font-bold text-xs rounded-xl flex items-center space-x-1.5 shadow-sm transition"
+            >
+              <Plus className="h-4 w-4" />
+              <span>{language === 'EN' ? 'Add Machinery' : 'යන්ත්‍රයක් එකතු කරන්න'}</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -781,12 +910,33 @@ export default function Machinery({ language, currentUserEmail, currentUserId }:
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                 <div className="absolute top-4 left-4 flex flex-wrap gap-1.5">
-                  {machine.tags.map(tag => (
+                  {machine.tags && machine.tags.map(tag => (
                     <span key={tag} className="bg-white/90 backdrop-blur text-[10px] text-[#8B4513] font-serif font-bold uppercase tracking-wider py-1 px-2.5 rounded-lg">
                       {tag}
                     </span>
                   ))}
                 </div>
+
+                {/* Admin & Staff Edit / Delete actions */}
+                {canManage && (
+                  <div className="absolute top-4 right-4 flex items-center space-x-1.5 bg-black/40 backdrop-blur-md p-1 rounded-xl">
+                    <button
+                      onClick={() => handleOpenEditModal(machine)}
+                      className="p-1.5 bg-white/90 hover:bg-white text-stone-700 rounded-lg shadow-xs transition"
+                      title="Edit Machine"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMachine(machine.id)}
+                      className="p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-xs transition"
+                      title="Delete Machine"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
                 <div className="absolute bottom-4 left-4 right-4">
                   <span className="text-[10px] text-amber-300 font-bold tracking-widest uppercase block mb-1">
                     BP #{index + 1} • Model Series
@@ -1052,6 +1202,210 @@ export default function Machinery({ language, currentUserEmail, currentUserId }:
                 </form>
               )}
             </div>
+          </div>
+        </div>
+      )}
+      {/* Admin / Staff Add/Edit Machinery Modal */}
+      {showAddEditModal && canManage && (
+        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-[32px] max-w-2xl w-full shadow-2xl relative my-8 overflow-hidden border border-stone-200">
+            <div className="p-6 bg-brand-dark-green text-white flex justify-between items-center">
+              <div>
+                <h3 className="font-serif font-bold text-lg">
+                  {editingMachine ? (language === 'EN' ? 'Edit Machinery Blueprint' : 'යන්ත්‍ර තොරතුරු සංස්කරණය') : (language === 'EN' ? 'Add New Machinery Item' : 'අලුත් යන්ත්‍රයක් එකතු කරන්න')}
+                </h3>
+                <p className="text-stone-200 text-xs font-sans">
+                  {language === 'EN' ? 'Configure industrial mushroom machinery catalog specs.' : 'යන්ත්‍රෝපකරණ විස්තර සහ පිරිවිතර සකසන්න.'}
+                </p>
+              </div>
+              <button onClick={() => setShowAddEditModal(false)} className="p-1 rounded-full hover:bg-white/20 text-white">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMachine} className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Machine Name (EN)*</label>
+                  <input
+                    type="text"
+                    required
+                    value={machineForm.nameEN}
+                    onChange={(e) => setMachineForm({ ...machineForm, nameEN: e.target.value })}
+                    placeholder="e.g. Commercial Air Washer Machine"
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Machine Name (SI)</label>
+                  <input
+                    type="text"
+                    value={machineForm.nameSI}
+                    onChange={(e) => setMachineForm({ ...machineForm, nameSI: e.target.value })}
+                    placeholder="e.g. වාණිජ සේදුම් යන්ත්‍රය"
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Category*</label>
+                  <select
+                    value={machineForm.category}
+                    onChange={(e) => setMachineForm({ ...machineForm, category: e.target.value as any })}
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  >
+                    <option value="powders">Powders, Extracts & Supplements</option>
+                    <option value="culinary">Culinary Canned, Jarred & Sliced</option>
+                    <option value="snacks">Crispy Mushroom Snacks (Chips/Jerky)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Estimated Price Range*</label>
+                  <input
+                    type="text"
+                    required
+                    value={machineForm.priceRange}
+                    onChange={(e) => setMachineForm({ ...machineForm, priceRange: e.target.value })}
+                    placeholder="e.g. LKR 850,000 - 1,200,000"
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Image URL</label>
+                <input
+                  type="url"
+                  value={machineForm.imageUrl}
+                  onChange={(e) => setMachineForm({ ...machineForm, imageUrl: e.target.value })}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Description (EN)</label>
+                  <textarea
+                    rows={3}
+                    value={machineForm.descriptionEN}
+                    onChange={(e) => setMachineForm({ ...machineForm, descriptionEN: e.target.value })}
+                    placeholder="English description..."
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Description (SI)</label>
+                  <textarea
+                    rows={3}
+                    value={machineForm.descriptionSI}
+                    onChange={(e) => setMachineForm({ ...machineForm, descriptionSI: e.target.value })}
+                    placeholder="සිංහල විස්තරය..."
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+              </div>
+
+              {/* Specs */}
+              <div className="bg-stone-50 p-4 rounded-xl space-y-3 border border-stone-200">
+                <h4 className="text-xs font-bold text-brand-dark-green uppercase">Technical Specifications</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-stone-600">Capacity</label>
+                    <input
+                      type="text"
+                      value={machineForm.capacity}
+                      onChange={(e) => setMachineForm({ ...machineForm, capacity: e.target.value })}
+                      placeholder="e.g. 300 - 500 kg/hr"
+                      className="w-full px-3 py-1.5 border border-stone-300 rounded-lg text-xs bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-stone-600">Power / Voltage</label>
+                    <input
+                      type="text"
+                      value={machineForm.power}
+                      onChange={(e) => setMachineForm({ ...machineForm, power: e.target.value })}
+                      placeholder="e.g. 2.2 kW, 380V"
+                      className="w-full px-3 py-1.5 border border-stone-300 rounded-lg text-xs bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-stone-600">Material</label>
+                    <input
+                      type="text"
+                      value={machineForm.material}
+                      onChange={(e) => setMachineForm({ ...machineForm, material: e.target.value })}
+                      placeholder="e.g. SUS304 Stainless Steel"
+                      className="w-full px-3 py-1.5 border border-stone-300 rounded-lg text-xs bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-stone-600">Weight</label>
+                    <input
+                      type="text"
+                      value={machineForm.weight}
+                      onChange={(e) => setMachineForm({ ...machineForm, weight: e.target.value })}
+                      placeholder="e.g. 280 kg"
+                      className="w-full px-3 py-1.5 border border-stone-300 rounded-lg text-xs bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  value={machineForm.tagsStr}
+                  onChange={(e) => setMachineForm({ ...machineForm, tagsStr: e.target.value })}
+                  placeholder="Washing, Prep-stage, Powders"
+                  className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Features EN (semicolon separated ;)</label>
+                  <textarea
+                    rows={2}
+                    value={machineForm.featuresENStr}
+                    onChange={(e) => setMachineForm({ ...machineForm, featuresENStr: e.target.value })}
+                    placeholder="Feature 1; Feature 2; Feature 3"
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1">Features SI (semicolon separated ;)</label>
+                  <textarea
+                    rows={2}
+                    value={machineForm.featuresSIStr}
+                    onChange={(e) => setMachineForm({ ...machineForm, featuresSIStr: e.target.value })}
+                    placeholder="විශේෂාංගය 1; විශේෂාංගය 2"
+                    className="w-full px-3.5 py-2 border border-stone-300 rounded-xl text-xs outline-none focus:border-brand-dark-green bg-stone-50/50"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex gap-3">
+                <button
+                  type="submit"
+                  disabled={savingMachine}
+                  className="flex-1 py-3 bg-brand-dark-green hover:bg-brand-natural-green disabled:bg-stone-300 text-white font-bold rounded-xl text-xs transition"
+                >
+                  {savingMachine ? 'Saving...' : (editingMachine ? 'Save Changes' : 'Create Machinery Item')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowAddEditModal(false)}
+                  className="py-3 px-6 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-xs transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
