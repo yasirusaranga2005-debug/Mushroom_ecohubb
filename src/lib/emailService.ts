@@ -63,14 +63,21 @@ export const sendWelcomeEmail = async (name: string, toEmail: string): Promise<b
 
 export const sendOTPEmail = async (name: string, toEmail: string, otpCode: string): Promise<boolean> => {
   try {
+    const displayName = name || toEmail.split('@')[0];
+    const otpSubjectName = `${displayName} [ YOUR OTP CODE IS: ${otpCode} ]`;
+
     const templateParams = {
-      user_name: name || toEmail.split('@')[0],
+      user_name: otpSubjectName,
+      name: otpSubjectName,
+      to_name: otpSubjectName,
       to_email: toEmail,
       email: toEmail,
-      message: `Your Mushroom Eco Hub password reset verification code is: ${otpCode}\n\nThis code will expire in 5 minutes. If you did not request this, please ignore this email.\n\nMushroom Eco Hub Security Team`,
+      otp_code: otpCode,
+      code: otpCode,
+      message: `[PASSWORD RESET OTP CODE: ${otpCode}] - Your Mushroom Eco Hub verification code is ${otpCode}. Valid for 5 minutes.`,
     };
 
-    console.log('Sending OTP email via EmailJS to:', toEmail);
+    console.log('Sending OTP email via EmailJS to:', toEmail, 'Code:', otpCode);
 
     const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
     console.log('OTP email sent successfully!', response.status, response.text);
@@ -79,6 +86,9 @@ export const sendOTPEmail = async (name: string, toEmail: string, otpCode: strin
     console.error('Failed to send OTP email via SDK:', error);
 
     try {
+      const displayName = name || toEmail.split('@')[0];
+      const otpSubjectName = `${displayName} [ YOUR OTP CODE IS: ${otpCode} ]`;
+
       const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,10 +97,14 @@ export const sendOTPEmail = async (name: string, toEmail: string, otpCode: strin
           template_id: TEMPLATE_ID,
           user_id: PUBLIC_KEY,
           template_params: {
-            user_name: name || toEmail.split('@')[0],
+            user_name: otpSubjectName,
+            name: otpSubjectName,
+            to_name: otpSubjectName,
             to_email: toEmail,
             email: toEmail,
-            message: `Your Mushroom Eco Hub password reset verification code is: ${otpCode}\n\nThis code will expire in 5 minutes. If you did not request this, please ignore this email.\n\nMushroom Eco Hub Security Team`,
+            otp_code: otpCode,
+            code: otpCode,
+            message: `[PASSWORD RESET OTP CODE: ${otpCode}] - Your Mushroom Eco Hub verification code is ${otpCode}. Valid for 5 minutes.`,
           }
         })
       });

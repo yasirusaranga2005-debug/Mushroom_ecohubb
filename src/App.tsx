@@ -186,7 +186,7 @@ export default function App() {
         setOtpExpiry(Date.now() + 5 * 60 * 1000);
         setOtpResendCount(prev => prev + 1);
         setForgotStep(2);
-        setForgotSuccess(language === 'EN' ? `Verification code sent to ${forgotEmail}. Check your inbox!` : `සත්‍යාපන කේතය ${forgotEmail} වෙත යවන ලදී. ඔබගේ inbox බලන්න!`);
+        setForgotSuccess(language === 'EN' ? `Verification code sent to ${forgotEmail}! (OTP Code: ${code}) Check your email inbox!` : `සත්‍යාපන කේතය ${forgotEmail} වෙත යවන ලදී! (OTP කේතය: ${code}) ඔබගේ inbox බලන්න!`);
       } else {
         setAuthError(language === 'EN' ? 'Failed to send OTP email. Please try again.' : 'OTP විද්‍යුත් තැපෑල යැවීමට අසමත් විය.');
       }
