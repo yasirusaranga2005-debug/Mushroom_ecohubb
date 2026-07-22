@@ -943,6 +943,37 @@ export const dataService = {
     return matchedSeed || null;
   },
 
+  async updateUserPassword(uid: string, newPassword: string): Promise<boolean> {
+    try {
+      if (isFirebaseAvailable) {
+        try {
+          await updateDoc(doc(db, 'users', uid), { password: newPassword });
+        } catch (e) {
+          console.warn('Firebase password update failed:', e);
+        }
+      }
+
+      // Update LocalStorage
+      const users = JSON.parse(localStorage.getItem(LS_USERS) || '{}');
+      if (users[uid]) {
+        users[uid].password = newPassword;
+        localStorage.setItem(LS_USERS, JSON.stringify(users));
+      } else {
+        // If user wasn't in LS_USERS yet, get profile and add
+        const profile = await this.getUserProfile(uid);
+        if (profile) {
+          profile.password = newPassword;
+          users[uid] = profile;
+          localStorage.setItem(LS_USERS, JSON.stringify(users));
+        }
+      }
+      return true;
+    } catch (err) {
+      console.error('updateUserPassword failed:', err);
+      return false;
+    }
+  },
+
   async findProfileByPhone(phone: string): Promise<UserProfile | null> {
     const cleanPhone = phone.trim();
     if (isFirebaseAvailable) {

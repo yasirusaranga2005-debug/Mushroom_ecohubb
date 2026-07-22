@@ -21,6 +21,7 @@ export interface UserProfile {
   licenseNumber?: string;
   productionArea?: string;
   gpsCoordinates?: string;
+  password?: string;
 }
 
 export interface EcosystemMember {

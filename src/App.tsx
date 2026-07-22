@@ -186,7 +186,7 @@ export default function App() {
         setOtpExpiry(Date.now() + 5 * 60 * 1000);
         setOtpResendCount(prev => prev + 1);
         setForgotStep(2);
-        setForgotSuccess(language === 'EN' ? `Verification code sent to ${forgotEmail}! (OTP Code: ${code}) Check your email inbox!` : `සත්‍යාපන කේතය ${forgotEmail} වෙත යවන ලදී! (OTP කේතය: ${code}) ඔබගේ inbox බලන්න!`);
+        setForgotSuccess(language === 'EN' ? `Verification code sent to ${forgotEmail}! Please check your email inbox.` : `සත්‍යාපන කේතය ${forgotEmail} වෙත යවන ලදී! කරුණාකර ඔබගේ email inbox එක බලන්න.`);
       } else {
         setAuthError(language === 'EN' ? 'Failed to send OTP email. Please try again.' : 'OTP විද්‍යුත් තැපෑල යැවීමට අසමත් විය.');
       }
@@ -225,13 +225,22 @@ export default function App() {
     }
     setForgotLoading(true);
     try {
-      // For Firebase users: try to update password
+      const profile = await dataService.findProfileByEmail(forgotEmail);
+      if (profile) {
+        // Update user password in database (Firestore + LocalStorage)
+        await dataService.updateUserPassword(profile.uid, newPassword);
+      }
+
+      // Try Firebase auth update if signed in
       if (firebaseActive && auth && auth.currentUser) {
-        await firebaseUpdatePassword(auth.currentUser, newPassword);
+        try {
+          await firebaseUpdatePassword(auth.currentUser, newPassword);
+        } catch (e) {
+          console.warn('Firebase currentUser password update skipped/failed:', e);
+        }
       }
 
       // Send success email
-      const profile = await dataService.findProfileByEmail(forgotEmail);
       await sendPasswordResetSuccessEmail(profile?.fullName || forgotEmail.split('@')[0], forgotEmail);
 
       // Audit log
@@ -243,7 +252,7 @@ export default function App() {
         userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
       });
 
-      setForgotSuccess(language === 'EN' ? 'Password reset successful! A confirmation email has been sent. You can now sign in.' : 'මුරපදය සාර්ථකව යළි සකසන ලදී! තහවුරු කිරීමේ විද්‍යුත් තැපෑලක් යවන ලදී. දැන් ඔබට පුරනය විය හැක.');
+      setForgotSuccess(language === 'EN' ? 'Password reset successful! A confirmation email has been sent. You can now sign in with your new password.' : 'මුරපදය සාර්ථකව යළි සකසන ලදී! තහවුරු කිරීමේ විද්‍යුත් තැපෑලක් යවන ලදී. දැන් ඔබට අලුත් මුරපදයෙන් පුරනය විය හැක.');
 
       // Reset forgot states after 3 seconds and go to sign in
       setTimeout(() => {
@@ -493,11 +502,19 @@ export default function App() {
     try {
       if (authMode === 'signin') {
         // Sign In
-        let profile: UserProfile | null = null;
-        if (firebaseActive && auth) {
+        let profile: UserProfile | null = await dataService.findProfileByEmail(authEmail);
+
+        // Password verification check if custom/updated password exists on profile
+        if (profile && profile.password && profile.password !== authPassword) {
+          throw { code: 'auth/wrong-password', message: 'Incorrect email or password. Please try again.' };
+        }
+
+        if (firebaseActive && auth && (!profile || !profile.password)) {
           try {
             const userCredential = await signInWithEmailAndPassword(auth, authEmail, authPassword);
-            profile = await dataService.getUserProfile(userCredential.user.uid);
+            if (!profile) {
+              profile = await dataService.getUserProfile(userCredential.user.uid);
+            }
           } catch (firebaseErr: any) {
             const credentialErrors = [
               'auth/wrong-password',
@@ -508,17 +525,12 @@ export default function App() {
             if (credentialErrors.includes(firebaseErr.code)) {
               throw firebaseErr;
             }
-            console.warn('Firebase native sign-in failed. Using robust database fallback auth:', firebaseErr);
-            profile = await dataService.findProfileByEmail(authEmail);
-            if (profile) {
-              localStorage.setItem('simulated_user_uid', profile.uid);
-            }
+            console.warn('Firebase native sign-in failed. Using database profile fallback auth:', firebaseErr);
           }
-        } else {
-          profile = await dataService.findProfileByEmail(authEmail);
-          if (profile) {
-            localStorage.setItem('simulated_user_uid', profile.uid);
-          }
+        }
+
+        if (profile) {
+          localStorage.setItem('simulated_user_uid', profile.uid);
         }
 
         if (!profile) {
@@ -586,6 +598,7 @@ export default function App() {
           email: authEmail,
           phone: sanitizedPhone,
           role: authRole,
+          password: authPassword,
           status: 'pending',
           createdAt: new Date().toISOString()
         };
@@ -611,6 +624,7 @@ export default function App() {
               email: authEmail,
               phone: sanitizedPhone,
               role: authEmail.toLowerCase().startsWith('admin@') ? 'admin' : authRole,
+              password: authPassword,
               status: 'approved', // Admin should also be automatically approved
               createdAt: new Date().toISOString()
             };
