@@ -18,7 +18,7 @@ import { dataService } from './lib/dataService';
 import { sendWelcomeEmail, sendOTPEmail, sendPasswordResetSuccessEmail } from './lib/emailService';
 import { onAuthStateChanged, User as FirebaseUser, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendEmailVerification, updatePassword as firebaseUpdatePassword, signInWithEmailAndPassword as reAuthSignIn } from 'firebase/auth';
 import { auth, isFirebaseAvailable, disableFirebase } from './lib/firebase';
-import { LogIn, UserPlus, AlertCircle, RefreshCw, ShieldCheck, Lock, Key, Eye, EyeOff, Timer, ArrowLeft, CheckCircle2, Mail } from 'lucide-react';
+import { LogIn, UserPlus, AlertCircle, RefreshCw, ShieldCheck, Lock, Key, Eye, EyeOff, Timer, ArrowLeft, CheckCircle2, Mail, HelpCircle, Info, Sprout, ShoppingBag, GraduationCap, Handshake, X } from 'lucide-react';
 
 export default function App() {
   const [language, setLanguage] = useState<'EN' | 'SI'>('EN');
@@ -64,6 +64,7 @@ export default function App() {
   const [authError, setAuthError] = useState('');
   const [authSubmitting, setAuthSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showRoleGuideModal, setShowRoleGuideModal] = useState(false);
 
   // Forgot Password OTP States
   const [forgotStep, setForgotStep] = useState<1 | 2 | 3>(1); // 1=email, 2=otp, 3=new password
@@ -1111,18 +1112,85 @@ export default function App() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-brand-text font-sans font-semibold text-xs mb-1.5 uppercase tracking-wider">Ecosystem Role</label>
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <label className="block text-brand-text font-sans font-semibold text-xs uppercase tracking-wider">
+                                    {language === 'EN' ? 'Ecosystem Role' : 'පද්ධති භූමිකාව (Role)'}
+                                  </label>
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowRoleGuideModal(true)}
+                                    className="text-[11px] text-brand-dark-green hover:text-brand-orange font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                  >
+                                    <HelpCircle className="h-3.5 w-3.5" />
+                                    <span>{language === 'EN' ? 'Which role should I select?' : 'මා සඳහා නිවැරදි භූමිකාව කුමක්ද?'}</span>
+                                  </button>
+                                </div>
                                 <select
                                   value={authRole}
                                   onChange={(e) => setAuthRole(e.target.value as UserRole)}
-                                  className="w-full px-4 py-2.5 border border-brand-border rounded-xl text-sm font-sans text-brand-text outline-none bg-stone-50/30 focus:bg-white focus:border-brand-dark-green focus:ring-2 focus:ring-brand-dark-green/10 transition-all duration-250 cursor-pointer"
+                                  className="w-full px-4 py-2.5 border border-brand-border rounded-xl text-sm font-sans text-brand-text font-bold outline-none bg-stone-50/30 focus:bg-white focus:border-brand-dark-green focus:ring-2 focus:ring-brand-dark-green/10 transition-all duration-250 cursor-pointer"
                                 >
-                                  <option value="grower">Mushroom Grower (වගාකරු)</option>
-                                  <option value="buyer">Bulk Wholesale Buyer (ගැනුම්කරු)</option>
-                                  <option value="trainer">Trainer / Consultant (පුහුණුකරු)</option>
-                                  <option value="partner">Ecosystem Partner / Processor (හවුල්කරු)</option>
-                                  <option value="staff">Co-op Staff (කාර්ය මණ්ඩලය)</option>
+                                  <option value="grower">🍄 Mushroom Grower (හතු වගාකරු)</option>
+                                  <option value="buyer">🛒 Bulk Wholesale Buyer (තොග ගැනුම්කරු)</option>
+                                  <option value="trainer">🎓 Trainer / Consultant (පුහුණුකරු / උපදේශක)</option>
+                                  <option value="partner">🤝 Ecosystem Partner / Processor (හවුල්කරු / සකසන්නා)</option>
+                                  <option value="staff">🛡️ Co-op Staff (සමූහ කාර්ය මණ්ඩලය)</option>
                                 </select>
+
+                                {/* Live Role Explainer Card */}
+                                <div className="mt-2.5 p-3.5 bg-brand-cream/60 border border-brand-orange/30 rounded-xl space-y-1.5 text-xs animate-fade-in">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-serif font-bold text-brand-dark-green flex items-center gap-1.5 text-[13px]">
+                                      {authRole === 'grower' && <Sprout className="h-4 w-4 text-brand-natural-green" />}
+                                      {authRole === 'buyer' && <ShoppingBag className="h-4 w-4 text-brand-orange" />}
+                                      {authRole === 'trainer' && <GraduationCap className="h-4 w-4 text-brand-brown" />}
+                                      {authRole === 'partner' && <Handshake className="h-4 w-4 text-amber-700" />}
+                                      {authRole === 'staff' && <ShieldCheck className="h-4 w-4 text-brand-dark-green" />}
+                                      <span>
+                                        {authRole === 'grower' && (language === 'EN' ? 'Grower Role Selected' : 'වගාකරු භූමිකාව තෝරා ඇත')}
+                                        {authRole === 'buyer' && (language === 'EN' ? 'Buyer Role Selected' : 'ගැනුම්කරු භූමිකාව තෝරා ඇත')}
+                                        {authRole === 'trainer' && (language === 'EN' ? 'Trainer Role Selected' : 'පුහුණුකරු භූමිකාව තෝරා ඇත')}
+                                        {authRole === 'partner' && (language === 'EN' ? 'Partner Role Selected' : 'හවුල්කරු භූමිකාව තෝරා ඇත')}
+                                        {authRole === 'staff' && (language === 'EN' ? 'Staff Role Selected' : 'කාර්ය මණ්ඩල භූමිකාව තෝරා ඇත')}
+                                      </span>
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowRoleGuideModal(true)}
+                                      className="text-[10px] text-brand-orange font-bold hover:underline"
+                                    >
+                                      {language === 'EN' ? 'Compare All Roles' : 'සියලුම භූමිකා සැසඳීම'}
+                                    </button>
+                                  </div>
+
+                                  <p className="text-stone-700 text-[11px] leading-relaxed font-sans">
+                                    {authRole === 'grower' && (
+                                      language === 'EN'
+                                        ? 'Best for: Individuals or commercial farms cultivating mushrooms or spawn. Allows you to list harvest products, execute quick stock updates, and track yields.'
+                                        : 'සුදුසු වන්නේ: අමු හතු හෝ බීජ වගා කරන ගොවීන් සඳහාය. අස්වැන්න වෙළඳපොළට එකතු කිරීමට සහ තොග කළමනාකරණයට පහසුකම් ලැබේ.'
+                                    )}
+                                    {authRole === 'buyer' && (
+                                      language === 'EN'
+                                        ? 'Best for: Supermarkets, hotels, restaurants, exporters, or wholesale purchasers. Allows you to send direct inquiries and source bulk mushrooms.'
+                                        : 'සුදුසු වන්නේ: සුපිරි වෙළඳසැල්, ආපනශාලා, හෝටල්, හෝ තොග වශයෙන් හතු මිලදී ගන්නන් සඳහාය. වගාකරුවන් වෙත ඍජු ඇණවුම් යැවීමට පහසුකම් ලැබේ.'
+                                    )}
+                                    {authRole === 'trainer' && (
+                                      language === 'EN'
+                                        ? 'Best for: Mushroom experts, agricultural consultants, and training leaders. Allows you to publish workshops and receive student applications.'
+                                        : 'සුදුසු වන්නේ: හතු වගා ක්ෂේත්‍රයේ ප්‍රවීණයන් සහ පුහුණු පවත්වන්නන් සඳහාය. පුහුණු පාඨමාලා පළ කිරීමට සහ ගොවීන් පුහුණු කිරීමට පහසුකම් ලැබේ.'
+                                    )}
+                                    {authRole === 'partner' && (
+                                      language === 'EN'
+                                        ? 'Best for: Value-addition food processors (powders, canned, chips) and substrate vendors. Allows you to list opportunities and buy-back notices.'
+                                        : 'සුදුසු වන්නේ: හතු කුඩු, ටින් කල හතු හෝ චිප්ස් නිෂ්පාදකයින් සහ අමුද්‍රව්‍ය සපයන්නන් සඳහාය. ගොවීන්ගෙන් අමුද්‍රව්‍ය ලබා ගැනීමට පහසුකම් ලැබේ.'
+                                    )}
+                                    {authRole === 'staff' && (
+                                      language === 'EN'
+                                        ? 'Best for: Authorized co-operative field officers and portal administrators overseeing member verifications and machinery inquiries.'
+                                        : 'සුදුසු වන්නේ: සමූපාකාර නිලධාරීන් සඳහාය. සාමාජිකයින් සහ යන්ත්‍රෝපකරණ විමසීම් පරිපාලනයට පහසුකම් ලැබේ.'
+                                    )}
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </>
@@ -1254,7 +1322,144 @@ export default function App() {
         )}
       </main>
 
-      {/* Session Timeout Warning Modal */}
+      {/* Interactive Role Selection Guide Modal */}
+      {showRoleGuideModal && (
+        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-3xl w-full shadow-2xl relative my-8 overflow-hidden border border-stone-200 animate-fade-in">
+            {/* Header */}
+            <div className="p-6 bg-gradient-to-r from-brand-dark-green to-brand-brown text-white flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl">
+                  <HelpCircle className="h-6 w-6 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="font-serif font-bold text-xl leading-tight">
+                    {language === 'EN' ? 'Ecosystem Role Selection Guide' : 'පද්ධති භූමිකා තේරීමේ මාර්ගෝපදේශය'}
+                  </h3>
+                  <p className="text-stone-200 text-xs font-sans mt-0.5">
+                    {language === 'EN' ? 'Choose the role that matches your activity in Mushroom Eco Hub' : 'ඔබගේ කාර්යයට අදාළ නිවැරදි භූමිකාව තෝරා ගන්න'}
+                  </p>
+                </div>
+              </div>
+              <button onClick={() => setShowRoleGuideModal(false)} className="p-2 rounded-full hover:bg-white/20 text-white transition">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Role List */}
+            <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto bg-stone-50/50">
+              {[
+                {
+                  id: 'grower',
+                  icon: <Sprout className="h-6 w-6 text-emerald-600" />,
+                  titleEN: '1. Mushroom Grower (හතු වගාකරු)',
+                  titleSI: '1. හතු වගාකරු (Mushroom Grower)',
+                  whoEN: 'For individual farmers, home cultivators, and commercial mushroom farms producing fresh oysters, button mushrooms, or spawn.',
+                  whoSI: 'අමු හතු හෝ බීජ වගා කරන ගෘහස්ථ සහ වාණිජ මට්ටමේ හතු වගාකරුවන් සඳහා.',
+                  perksEN: ['Post products on Marketplace', 'Quick Stock Update (Available/Out of Stock)', 'Track harvest metrics'],
+                  perksSI: ['වෙළඳපොළට නිෂ්පාදන ඇතුළත් කිරීම', 'තොග පවතින බව වෙනස් කිරීම', 'අස්වැන්න සටහන් පවත්වා ගැනීම']
+                },
+                {
+                  id: 'buyer',
+                  icon: <ShoppingBag className="h-6 w-6 text-brand-orange" />,
+                  titleEN: '2. Bulk Wholesale Buyer (තොග ගැනුම්කරු)',
+                  titleSI: '2. තොග ගැනුම්කරු (Wholesale Buyer)',
+                  whoEN: 'For supermarkets, hotels, restaurants, food chains, exporters, or buyers purchasing mushrooms in bulk.',
+                  whoSI: 'සුපිරි වෙළඳසැල්, ආපනශාලා, හෝටල්, අපනයනකරුවන් හෝ තොග වශයෙන් හතු මිලදී ගන්නන් සඳහා.',
+                  perksEN: ['Search verified regional growers', 'Send direct order inquiries', 'Track purchase inquiry status'],
+                  perksSI: ['ප්‍රාදේශීය වගාකරුවන් සෙවීම', 'ඍජු තොග ඇණවුම් යැවීම', 'ඇණවුම් තත්ත්වය පරීක්ෂා කිරීම']
+                },
+                {
+                  id: 'trainer',
+                  icon: <GraduationCap className="h-6 w-6 text-brand-brown" />,
+                  titleEN: '3. Trainer / Consultant (පුහුණුකරු)',
+                  titleSI: '3. පුහුණුකරු / උපදේශක (Trainer/Consultant)',
+                  whoEN: 'For mushroom cultivation experts, agricultural instructors, university researchers, and workshop conductors.',
+                  whoSI: 'හතු වගා ක්ෂේත්‍රයේ ප්‍රවීණයන්, කෘෂිකාර්මික උපදේශකයන් සහ පුහුණු වැඩසටහන් පවත්වන්නන් සඳහා.',
+                  perksEN: ['Publish training workshops', 'Receive student registration requests', 'Share farming guides'],
+                  perksSI: ['පුහුණු පාඨමාලා පළ කිරීම', 'ගොවීන්ගේ පුහුණු ඉල්ලීම් ලබා ගැනීම', 'මාර්ගෝපදේශ බෙදාගැනීම']
+                },
+                {
+                  id: 'partner',
+                  icon: <Handshake className="h-6 w-6 text-amber-700" />,
+                  titleEN: '4. Ecosystem Partner / Processor (හවුල්කරු)',
+                  titleSI: '4. හවුල්කරු / සකසන්නා (Partner/Processor)',
+                  whoEN: 'For value-addition food processors (mushroom powders, canned, chips) and substrate/spawn vendors.',
+                  whoSI: 'අගය එකතු කළ නිෂ්පාදන සකසන්නන් (කුඩු, ටින් කල හතු, චිප්ස්) සහ මාධ්‍ය ද්‍රව්‍ය සපයන්නන් සඳහා.',
+                  perksEN: ['Post buy-back opportunities', 'Source raw materials from growers', 'Explore processing machinery'],
+                  perksSI: ['මිලදී ගැනීමේ අවස්ථා පළ කිරීම', 'වගාකරුවන්ගෙන් අමුද්‍රව්‍ය ලබා ගැනීම', 'යන්ත්‍රෝපකරණ ලබා ගැනීම']
+                },
+                {
+                  id: 'staff',
+                  icon: <ShieldCheck className="h-6 w-6 text-brand-dark-green" />,
+                  titleEN: '5. Co-op Staff (සමූහ කාර්ය මණ්ඩලය)',
+                  titleSI: '5. සමූහ කාර්ය මණ්ඩලය (Co-op Staff)',
+                  whoEN: 'For authorized regional co-operative officers and administrative support managers.',
+                  whoSI: 'සමූපාකාර ප්‍රාදේශීය නිලධාරීන් සහ පද්ධති පාලකයන් සඳහා.',
+                  perksEN: ['Verify regional members', 'Manage machinery catalog', 'Oversee security compliance'],
+                  perksSI: ['සාමාජිකත්ව තහවුරු කිරීම', 'යන්ත්‍රෝපකරණ නාමාවලිය පරිපාලනය', 'ආරක්ෂිත පද්ධති නිරීක්ෂණය']
+                }
+              ].map((r) => {
+                const isSelected = authRole === r.id;
+                return (
+                  <div
+                    key={r.id}
+                    onClick={() => {
+                      setAuthRole(r.id as UserRole);
+                      setShowRoleGuideModal(false);
+                    }}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                      isSelected
+                        ? 'bg-white border-brand-orange shadow-md ring-2 ring-brand-orange/30'
+                        : 'bg-white hover:bg-stone-100/80 border-stone-200'
+                    }`}
+                  >
+                    <div className="flex items-start space-x-3.5">
+                      <div className="p-3 bg-stone-100 rounded-xl shrink-0">
+                        {r.icon}
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-serif font-bold text-stone-900 text-sm flex items-center gap-2">
+                          <span>{language === 'EN' ? r.titleEN : r.titleSI}</span>
+                          {isSelected && (
+                            <span className="px-2 py-0.5 bg-brand-orange text-white text-[10px] rounded-full font-sans font-bold">Selected</span>
+                          )}
+                        </h4>
+                        <p className="text-xs text-stone-600 font-sans leading-relaxed">
+                          {language === 'EN' ? r.whoEN : r.whoSI}
+                        </p>
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {(language === 'EN' ? r.perksEN : r.perksSI).map((perk, idx) => (
+                            <span key={idx} className="bg-stone-100 text-stone-700 text-[10px] font-sans font-semibold px-2 py-0.5 rounded-md">
+                              ✓ {perk}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setAuthRole(r.id as UserRole);
+                        setShowRoleGuideModal(false);
+                      }}
+                      className={`px-4 py-2 text-xs font-bold font-sans rounded-xl shrink-0 transition ${
+                        isSelected 
+                          ? 'bg-brand-dark-green text-white' 
+                          : 'bg-stone-100 hover:bg-brand-orange hover:text-white text-stone-700'
+                      }`}
+                    >
+                      {isSelected ? (language === 'EN' ? 'Selected' : 'තෝරාගෙන ඇත') : (language === 'EN' ? 'Select Role' : 'මේක තෝරන්න')}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
       {showSessionWarning && currentUser && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl space-y-4 animate-fade-in">
