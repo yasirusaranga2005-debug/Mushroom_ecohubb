@@ -1392,9 +1392,12 @@ export default function App() {
                   titleSI: '4. හවුල්කරු / සකසන්නා (Partner/Processor)',
                   whoEN: 'For value-addition food processors (mushroom powders, canned, chips) and substrate/spawn vendors.',
                   whoSI: 'අගය එකතු කළ නිෂ්පාදන සකසන්නන් (කුඩු, ටින් කල හතු, චිප්ස්) සහ මාධ්‍ය ද්‍රව්‍ය සපයන්නන් සඳහා.',
+                  perksEN: ['Post buy-back opportunities', 'Source raw materials from growers', 'Explore processing machinery'],
+                  perksSI: ['මිලදී ගැනීමේ අවස්ථා පළ කිරීම', 'වගාකරුවන්ගෙන් අමුද්‍රව්‍ය ලබා ගැනීම', 'යන්ත්‍රෝපකරණ ලබා ගැනීම']
                 }
               ].map((r) => {
                 const isSelected = authRole === r.id;
+                const perksList = (roleGuideLang === 'EN' ? r.perksEN : r.perksSI) || [];
                 return (
                   <div
                     key={r.id}
@@ -1423,7 +1426,7 @@ export default function App() {
                           {roleGuideLang === 'EN' ? r.whoEN : r.whoSI}
                         </p>
                         <div className="flex flex-wrap gap-1.5 pt-1">
-                          {(roleGuideLang === 'EN' ? r.perksEN : r.perksSI).map((perk, idx) => (
+                          {perksList.map((perk, idx) => (
                             <span key={idx} className="bg-stone-100 text-stone-700 text-[10px] font-sans font-semibold px-2 py-0.5 rounded-md">
                               ✓ {perk}
                             </span>
