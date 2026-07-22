@@ -38,6 +38,7 @@ export default function Navbar({
     { id: 'opportunities', label: language === 'EN' ? 'Opportunities' : 'අවස්ථා' },
     { id: 'machinery', label: language === 'EN' ? 'Machinery' : 'යන්ත්‍රෝපකරණ' },
     { id: 'about', label: language === 'EN' ? 'About Us' : 'අප ගැන' },
+    { id: 'guide', label: language === 'EN' ? 'User Guide' : 'මාර්ගෝපදේශය' },
     { id: 'contact', label: language === 'EN' ? 'Contact' : 'සම්බන්ධ වන්න' },
   ];
 

@@ -60,3 +60,93 @@ export const sendWelcomeEmail = async (name: string, toEmail: string): Promise<b
     return false;
   }
 };
+
+export const sendOTPEmail = async (name: string, toEmail: string, otpCode: string): Promise<boolean> => {
+  try {
+    const templateParams = {
+      user_name: name || toEmail.split('@')[0],
+      to_email: toEmail,
+      email: toEmail,
+      message: `Your Mushroom Eco Hub password reset verification code is: ${otpCode}\n\nThis code will expire in 5 minutes. If you did not request this, please ignore this email.\n\nMushroom Eco Hub Security Team`,
+    };
+
+    console.log('Sending OTP email via EmailJS to:', toEmail);
+
+    const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+    console.log('OTP email sent successfully!', response.status, response.text);
+    return true;
+  } catch (error: any) {
+    console.error('Failed to send OTP email via SDK:', error);
+
+    try {
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: SERVICE_ID,
+          template_id: TEMPLATE_ID,
+          user_id: PUBLIC_KEY,
+          template_params: {
+            user_name: name || toEmail.split('@')[0],
+            to_email: toEmail,
+            email: toEmail,
+            message: `Your Mushroom Eco Hub password reset verification code is: ${otpCode}\n\nThis code will expire in 5 minutes. If you did not request this, please ignore this email.\n\nMushroom Eco Hub Security Team`,
+          }
+        })
+      });
+      if (res.ok) {
+        console.log('OTP email sent via REST API fallback!');
+        return true;
+      }
+    } catch (fallbackErr) {
+      console.error('OTP email fallback failed:', fallbackErr);
+    }
+
+    return false;
+  }
+};
+
+export const sendPasswordResetSuccessEmail = async (name: string, toEmail: string): Promise<boolean> => {
+  try {
+    const templateParams = {
+      user_name: name || toEmail.split('@')[0],
+      to_email: toEmail,
+      email: toEmail,
+      message: `Your Mushroom Eco Hub account password has been successfully reset.\n\nIf you did not make this change, please contact our support team immediately.\n\nYou can now sign in with your new password at the Mushroom Eco Hub portal.\n\nStay secure,\nMushroom Eco Hub Security Team`,
+    };
+
+    console.log('Sending password reset success email to:', toEmail);
+
+    const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+    console.log('Password reset success email sent!', response.status, response.text);
+    return true;
+  } catch (error: any) {
+    console.error('Failed to send reset success email:', error);
+
+    try {
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: SERVICE_ID,
+          template_id: TEMPLATE_ID,
+          user_id: PUBLIC_KEY,
+          template_params: {
+            user_name: name || toEmail.split('@')[0],
+            to_email: toEmail,
+            email: toEmail,
+            message: `Your Mushroom Eco Hub account password has been successfully reset.\n\nIf you did not make this change, please contact our support team immediately.\n\nYou can now sign in with your new password at the Mushroom Eco Hub portal.\n\nStay secure,\nMushroom Eco Hub Security Team`,
+          }
+        })
+      });
+      if (res.ok) {
+        console.log('Reset success email sent via REST API fallback!');
+        return true;
+      }
+    } catch (fallbackErr) {
+      console.error('Reset success email fallback failed:', fallbackErr);
+    }
+
+    return false;
+  }
+};
